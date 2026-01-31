@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HayatiArac.Modules.User.Application\HayatiArac.Modules.User.Application.csproj" />
+    <ProjectReference Include="..\HayatiArac.Modules.User.Domain\HayatiArac.Modules.User.Domain.csproj" />
+    <ProjectReference Include="..\HayatiArac.Modules.User.IntegrationEvents\HayatiArac.Modules.User.IntegrationEvents.csproj" />
+    <ProjectReference Include="..\HayatiArac.SharedKernel\HayatiArac.SharedKernel.csproj" />
+  </ItemGroup>
+
+</Project>
