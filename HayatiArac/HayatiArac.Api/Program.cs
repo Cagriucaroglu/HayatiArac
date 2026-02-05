@@ -1,41 +1,62 @@
+using HayatiArac.Modules.Advert.Infrastructure;
+using HayatiArac.Modules.User.Infrastructure;
+using HayatiArac.SharedKernel.Infrastructure;
+using MassTransit;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new() { Title = "HayatiArac API", Version = "v1" });
+});
+
+// Module registrations
+var modules = new IModuleRegistration[]
+{
+    new UserModuleRegistration(),
+    new AdvertModuleRegistration()
+};
+
+foreach (var module in modules)
+{
+    module.RegisterServices(builder.Services, builder.Configuration);
+}
+
+// MassTransit for integration events
+builder.Services.AddMassTransit(x =>
+{
+    // Register consumers from User module
+    x.AddConsumers(typeof(UserModuleRegistration).Assembly);
+
+    // Register consumers from Advert module
+    x.AddConsumers(typeof(AdvertModuleRegistration).Assembly);
+
+    x.UsingInMemory((context, cfg) =>
+    {
+        cfg.ConfigureEndpoints(context);
+    });
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "HayatiArac API v1"));
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
+// Module middleware
+foreach (var module in modules)
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    module.ConfigureMiddleware(app);
+}
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+// Map endpoints
+app.MapEndpoints();
 
 app.Run();
-
-internal record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

@@ -1,0 +1,34 @@
+using HayatiArac.Modules.Advert.Application.DTOs;
+using HayatiArac.Modules.Advert.Application.Queries.GetCategories;
+using HayatiArac.SharedKernel.Infrastructure;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+
+namespace HayatiArac.Modules.Advert.Infrastructure.Endpoints;
+
+internal sealed class GetCategoriesEndpoint : IEndpoint
+{
+    public void MapEndpoint(IEndpointRouteBuilder app)
+    {
+        app.MapGet("api/adverts/categories", async (
+            ISender sender,
+            CancellationToken cancellationToken) =>
+        {
+            var query = new GetCategoriesQuery();
+            var result = await sender.Send(query, cancellationToken);
+
+            return result.IsSuccess
+                ? Results.Ok(result.Value)
+                : Results.BadRequest(result.Error);
+        })
+        .WithName("GetCategories")
+        .WithSummary("Tüm kategorileri getir")
+        .WithTags("Adverts")
+        .AllowAnonymous()
+        .Produces<List<CategoryDto>>(StatusCodes.Status200OK)
+        .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
+    }
+}

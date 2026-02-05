@@ -1,6 +1,7 @@
 using HayatiArac.Modules.Advert.Application.Interfaces;
 using HayatiArac.Modules.Advert.Infrastructure.Persistence;
 using HayatiArac.Modules.Advert.Infrastructure.Persistence.Repositories;
+using HayatiArac.Modules.Advert.Infrastructure.Services;
 using HayatiArac.SharedKernel.Application.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -17,7 +18,10 @@ public static class DependencyInjection
         // Database
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<AdvertDbContext>(options =>
-            options.UseNpgsql(connectionString));
+            options.UseNpgsql(
+                connectionString,
+                npgsql => npgsql.MigrationsHistoryTable(
+                    "__EFMigrationsHistory", AdvertDbContext.Schema)));
 
         // Repositories
         services.AddScoped<IAdvertRepository, AdvertRepository>();
@@ -26,6 +30,10 @@ public static class DependencyInjection
 
         // Unit of Work
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        // Services
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         return services;
     }
