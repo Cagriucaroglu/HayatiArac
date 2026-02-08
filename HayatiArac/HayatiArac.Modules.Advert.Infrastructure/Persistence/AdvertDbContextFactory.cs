@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace HayatiArac.Modules.Advert.Infrastructure.Persistence;
 
@@ -13,9 +14,9 @@ public class AdvertDbContextFactory : IDesignTimeDbContextFactory<AdvertDbContex
         var optionsBuilder = new DbContextOptionsBuilder<AdvertDbContext>();
 
         // Use a default connection string for design-time
-        optionsBuilder.UseNpgsql(
-            "Host=localhost;Port=5432;Database=HayatiAracDb;Username=postgres;Password=postgres",
-            npgsql => npgsql.MigrationsHistoryTable(
+        optionsBuilder.UseSqlite(
+            "Data Source=hayatiarac.db",
+            sqlite => sqlite.MigrationsHistoryTable(
                 "__EFMigrationsHistory", AdvertDbContext.Schema));
 
         return new AdvertDbContext(optionsBuilder.Options);

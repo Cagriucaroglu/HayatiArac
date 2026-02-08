@@ -12,6 +12,9 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "HayatiArac API", Version = "v1" });
 });
 
+// Add Authorization
+builder.Services.AddAuthorization();
+
 // Module registrations
 var modules = new IModuleRegistration[]
 {

@@ -17,11 +17,11 @@ public class UserModuleRegistration : IModuleRegistration
 {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        // EF Core DbContext with PostgreSQL + schema
+        // EF Core DbContext with SQLite + schema
         services.AddDbContext<UserDbContext>(options =>
-            options.UseNpgsql(
+            options.UseSqlite(
                 configuration.GetConnectionString("DefaultConnection"),
-                npgsql => npgsql.MigrationsHistoryTable(
+                sqlite => sqlite.MigrationsHistoryTable(
                     "__EFMigrationsHistory", UserDbContext.SchemaName)));
 
         // ASP.NET Identity

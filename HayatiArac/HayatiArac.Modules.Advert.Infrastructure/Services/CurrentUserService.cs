@@ -24,7 +24,8 @@ internal sealed class CurrentUserService : ICurrentUserService
         }
     }
 
-    public string? UserName => _httpContextAccessor.HttpContext?.User.Identity?.Name;
+    public string? Email => _httpContextAccessor.HttpContext?.User
+        .FindFirst(ClaimTypes.Email)?.Value;
 
     public bool IsAuthenticated => _httpContextAccessor.HttpContext?.User.Identity?.IsAuthenticated ?? false;
 }
