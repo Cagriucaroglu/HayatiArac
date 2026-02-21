@@ -1,35 +1,57 @@
 namespace HayatiArac.SharedKernel.Application;
 
-public record Result
+public interface IResult
 {
-    public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
-    public string? Error { get; }
-    public IEnumerable<string>? Errors { get; }
-
-    protected Result(bool isSuccess, string? error = null, IEnumerable<string>? errors = null)
-    {
-        IsSuccess = isSuccess;
-        Error = error;
-        Errors = errors;
-    }
-
-    public static Result Success() => new(true);
-    public static Result Failure(string error) => new(false, error);
-    public static Result Failure(IEnumerable<string> errors) => new(false, errors: errors);
-
-    public static Result<T> Success<T>(T value) => new(value, true);
-    public static Result<T> Failure<T>(string error) => new(default, false, error);
-    public static Result<T> Failure<T>(IEnumerable<string> errors) => new(default, false, errors: errors);
+    bool IsSuccess { get; }
+    bool IsFailure { get; }
+    Error Error { get; }
 }
 
-public record Result<T> : Result
+public interface IResult<out TValue> : IResult
 {
-    public T? Value { get; }
+    TValue Value { get; }
+}
 
-    internal Result(T? value, bool isSuccess, string? error = null, IEnumerable<string>? errors = null)
-        : base(isSuccess, error, errors)
+public class Result : IResult
+{
+    protected Result(bool isSuccess, Error error)
     {
-        Value = value;
+        if (isSuccess && error != Error.None ||
+            !isSuccess && error == Error.None)
+        {
+            throw new ArgumentException("Invalid error", nameof(error));
+        }
+
+        IsSuccess = isSuccess;
+        Error = error;
     }
+
+    public bool IsSuccess { get; }
+    public bool IsFailure => !IsSuccess;
+    public Error Error { get; }
+
+    public static Result Success() => new(true, Error.None);
+    public static Result Failure(Error error) => new(false, error);
+
+    public static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
+    public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
+
+    public static Result<TValue> Create<TValue>(TValue? value) => value is not null ? Success(value) : Failure<TValue>(Error.NullValue);
+}
+
+public class Result<TValue> : Result, IResult<TValue>
+{
+    private readonly TValue? _value;
+
+    protected internal Result(TValue? value, bool isSuccess, Error error) : base(isSuccess, error)
+    {
+        _value = value;
+    }
+
+    public TValue Value => IsSuccess
+        ? _value!
+        : throw new InvalidOperationException("The value of a failure result can't be accessed.");
+
+    public static implicit operator Result<TValue>(TValue? value) => Create(value);
+    public static implicit operator Result<TValue>(Error error) => Failure<TValue>(error);
 }
