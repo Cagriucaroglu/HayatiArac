@@ -18,9 +18,9 @@ public static class DependencyInjection
         // Database
         var connectionString = configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<AdvertDbContext>(options =>
-            options.UseSqlite(
+            options.UseSqlServer(
                 connectionString,
-                sqlite => sqlite.MigrationsHistoryTable(
+                sqlServer => sqlServer.MigrationsHistoryTable(
                     "__EFMigrationsHistory", AdvertDbContext.Schema)));
 
         // Repositories

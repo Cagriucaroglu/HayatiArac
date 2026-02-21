@@ -1,16 +1,16 @@
 using HayatiArac.Modules.User.Domain.Entities;
 using HayatiArac.SharedKernel.Application.Interfaces;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace HayatiArac.Modules.User.Infrastructure.Persistence;
 
-public class UserDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>, IUnitOfWork
+public class UserDbContext : DbContext, IUnitOfWork
 {
     public const string SchemaName = "users";
 
+    public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
     public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 
     public UserDbContext(DbContextOptions<UserDbContext> options) : base(options) { }
 
@@ -18,7 +18,7 @@ public class UserDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Gui
     {
         base.OnModelCreating(modelBuilder);
 
-        // Set schema for all Identity tables
+        // Set schema for all tables
         modelBuilder.HasDefaultSchema(SchemaName);
 
         // Apply all configurations from this assembly

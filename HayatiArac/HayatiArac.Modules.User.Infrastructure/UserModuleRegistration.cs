@@ -1,12 +1,12 @@
 using HayatiArac.Modules.User.Application;
 using HayatiArac.Modules.User.Application.Interfaces;
-using HayatiArac.Modules.User.Domain.Entities;
+using HayatiArac.Modules.User.Application.Settings;
 using HayatiArac.Modules.User.Infrastructure.Persistence;
 using HayatiArac.Modules.User.Infrastructure.Persistence.Repositories;
 using HayatiArac.Modules.User.Infrastructure.Services;
+using HayatiArac.Modules.User.Infrastructure.Services.Authentication;
 using HayatiArac.SharedKernel.Infrastructure;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,51 +17,27 @@ public class UserModuleRegistration : IModuleRegistration
 {
     public void RegisterServices(IServiceCollection services, IConfiguration configuration)
     {
-        // EF Core DbContext with SQLite + schema
+        // EF Core DbContext with SQL Server + schema
         services.AddDbContext<UserDbContext>(options =>
-            options.UseSqlite(
+            options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
-                sqlite => sqlite.MigrationsHistoryTable(
+                sqlServer => sqlServer.MigrationsHistoryTable(
                     "__EFMigrationsHistory", UserDbContext.SchemaName)));
 
-        // ASP.NET Identity
-        services.AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
-        {
-            options.Password.RequireDigit = true;
-            options.Password.RequiredLength = 6;
-            options.Password.RequireNonAlphanumeric = false;
-            options.User.RequireUniqueEmail = true;
-            options.SignIn.RequireConfirmedEmail = false;
-        })
-        .AddEntityFrameworkStores<UserDbContext>()
-        .AddDefaultTokenProviders();
-
-        // Cookie Authentication
-        services.ConfigureApplicationCookie(options =>
-        {
-            options.Cookie.HttpOnly = true;
-            options.Cookie.Name = "HayatiArac.Auth";
-            options.ExpireTimeSpan = TimeSpan.FromDays(7);
-            options.LoginPath = "/api/users/login";
-            options.AccessDeniedPath = "/api/users/access-denied";
-            options.SlidingExpiration = true;
-            options.Events.OnRedirectToLogin = context =>
-            {
-                context.Response.StatusCode = 401;
-                return Task.CompletedTask;
-            };
-            options.Events.OnRedirectToAccessDenied = context =>
-            {
-                context.Response.StatusCode = 403;
-                return Task.CompletedTask;
-            };
-        });
+        // JWT Settings
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
 
         // Repositories
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
         // Services
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+        // Hosted Services (Database initialization)
+        services.AddHostedService<DatabaseInitializerService>();
 
         // Application layer registrations
         services.AddUserApplication();

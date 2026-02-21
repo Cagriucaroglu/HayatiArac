@@ -2,6 +2,9 @@ using HayatiArac.Modules.Advert.Infrastructure;
 using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
 using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +15,31 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new() { Title = "HayatiArac API", Version = "v1" });
 });
 
-// Add Authorization
+// JWT Authentication Configuration
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var secretKey = jwtSettings["Secret"];
+
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("JWT Secret is not configured. Please set it in appsettings.json");
+}
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
 builder.Services.AddAuthorization();
 
 // Module registrations

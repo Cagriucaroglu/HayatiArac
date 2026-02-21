@@ -15,9 +15,9 @@ public class UserDbContextFactory : IDesignTimeDbContextFactory<UserDbContext>
         var optionsBuilder = new DbContextOptionsBuilder<UserDbContext>();
 
         // Use a default connection string for design-time
-        optionsBuilder.UseSqlite(
-            "Data Source=hayatiarac.db",
-            sqlite => sqlite.MigrationsHistoryTable(
+        optionsBuilder.UseSqlServer(
+            "Server=localhost,1433;Database=HayatiAracDb;User Id=sa;Password=Test12345;TrustServerCertificate=True;MultipleActiveResultSets=true",
+            sqlServer => sqlServer.MigrationsHistoryTable(
                 "__EFMigrationsHistory", UserDbContext.SchemaName));
         
         return new UserDbContext(optionsBuilder.Options);

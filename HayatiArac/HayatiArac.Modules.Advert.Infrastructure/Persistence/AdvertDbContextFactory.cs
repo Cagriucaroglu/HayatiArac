@@ -14,9 +14,9 @@ public class AdvertDbContextFactory : IDesignTimeDbContextFactory<AdvertDbContex
         var optionsBuilder = new DbContextOptionsBuilder<AdvertDbContext>();
 
         // Use a default connection string for design-time
-        optionsBuilder.UseSqlite(
-            "Data Source=hayatiarac.db",
-            sqlite => sqlite.MigrationsHistoryTable(
+        optionsBuilder.UseSqlServer(
+            "Server=localhost,1433;Database=HayatiAracDb;User Id=sa;Password=Test12345;TrustServerCertificate=True;MultipleActiveResultSets=true",
+            sqlServer => sqlServer.MigrationsHistoryTable(
                 "__EFMigrationsHistory", AdvertDbContext.Schema));
 
         return new AdvertDbContext(optionsBuilder.Options);
