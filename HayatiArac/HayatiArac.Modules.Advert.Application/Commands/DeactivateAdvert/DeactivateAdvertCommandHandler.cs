@@ -25,15 +25,15 @@ public sealed class DeactivateAdvertCommandHandler : IRequestHandler<DeactivateA
     {
         var userId = _currentUserService.UserId;
         if (!userId.HasValue)
-            return Result.Failure("Kullanıcı doğrulanamadı.");
+            return Result.Failure<Unit>(Error.Unauthorized("User.Unauthorized", "Kullanıcı doğrulanamadı."));
 
         var advert = await _advertRepository.GetByIdAsync(request.AdvertId, cancellationToken);
         if (advert is null)
-            return Result.Failure("İlan bulunamadı.");
+            return Result.Failure<Unit>(Error.NotFound("Advert.NotFound", "İlan bulunamadı."));
 
         // Authorization: only owner can deactivate
         if (advert.OwnerUserId != userId.Value)
-            return Result.Failure("Bu ilanı pasifleştirme yetkiniz yok.");
+            return Result.Failure<Unit>(Error.Forbidden("Advert.NotOwner", "Bu ilanı pasifleştirme yetkiniz yok."));
 
         advert.Deactivate();
 

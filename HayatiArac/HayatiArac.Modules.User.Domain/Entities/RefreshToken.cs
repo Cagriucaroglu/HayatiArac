@@ -1,13 +1,13 @@
+using HayatiArac.SharedKernel.Domain;
+
 namespace HayatiArac.Modules.User.Domain.Entities;
 
-public class RefreshToken
+public class RefreshToken : BaseEntity
 {
-    public Guid Id { get; set; }
     public string Token { get; set; } = string.Empty;
     public Guid UserId { get; set; }
     public string JwtId { get; set; } = string.Empty;
     public DateTime ExpiresAt { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string CreatedByIp { get; set; } = string.Empty;
     public bool IsRevoked { get; set; } = false;
     public DateTime? RevokedAt { get; set; }
@@ -22,13 +22,11 @@ public class RefreshToken
     {
         return new RefreshToken
         {
-            Id = Guid.NewGuid(),
             UserId = userId,
             Token = token,
             JwtId = jwtId,
             ExpiresAt = expiresAt,
             CreatedByIp = createdByIp,
-            CreatedAt = DateTime.UtcNow,
             IsRevoked = false
         };
     }

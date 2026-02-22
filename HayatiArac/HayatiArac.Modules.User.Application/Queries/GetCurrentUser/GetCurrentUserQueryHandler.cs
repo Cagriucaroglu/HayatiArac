@@ -1,9 +1,7 @@
 using HayatiArac.Modules.User.Application.DTOs;
 using HayatiArac.Modules.User.Application.Interfaces;
-using HayatiArac.Modules.User.Domain.Entities;
 using HayatiArac.SharedKernel.Application;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 
 namespace HayatiArac.Modules.User.Application.Queries.GetCurrentUser;
 
@@ -11,14 +9,14 @@ public sealed class GetCurrentUserQueryHandler
     : IRequestHandler<GetCurrentUserQuery, Result<UserProfileDto>>
 {
     private readonly ICurrentUserService _currentUserService;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IUserRepository _userRepository;
 
     public GetCurrentUserQueryHandler(
         ICurrentUserService currentUserService,
-        UserManager<ApplicationUser> userManager)
+        IUserRepository userRepository)
     {
         _currentUserService = currentUserService;
-        _userManager = userManager;
+        _userRepository = userRepository;
     }
 
     public async Task<Result<UserProfileDto>> Handle(
@@ -26,11 +24,11 @@ public sealed class GetCurrentUserQueryHandler
         CancellationToken cancellationToken)
     {
         if (!_currentUserService.IsAuthenticated || _currentUserService.UserId == null)
-            return Result.Failure<UserProfileDto>("Kullanici giris yapmamis.");
+            return Result.Failure<UserProfileDto>(Error.Unauthorized("User.Unauthenticated", "Kullanici giris yapmamis."));
 
-        var user = await _userManager.FindByIdAsync(_currentUserService.UserId.Value.ToString());
+        var user = await _userRepository.GetByIdAsync(_currentUserService.UserId.Value, cancellationToken);
         if (user == null)
-            return Result.Failure<UserProfileDto>("Kullanici bulunamadi.");
+            return Result.Failure<UserProfileDto>(Error.NotFound("User.NotFound", "Kullanici bulunamadi."));
 
         var dto = new UserProfileDto(
             user.Id,

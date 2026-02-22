@@ -32,19 +32,19 @@ public sealed class CreateAdvertCommandHandler : IRequestHandler<CreateAdvertCom
     {
         var userId = _currentUserService.UserId;
         if (!userId.HasValue)
-            return Result.Failure<Guid>("Kullanıcı doğrulanamadı.");
+            return Result.Failure<Guid>(Error.Unauthorized("User.Unauthorized", "Kullanıcı doğrulanamadı."));
 
         var dto = request.Request;
 
         // Verify category exists
         var category = await _categoryRepository.GetByIdAsync(dto.CategoryId, cancellationToken);
         if (category is null)
-            return Result.Failure<Guid>("Kategori bulunamadı.");
+            return Result.Failure<Guid>(Error.NotFound("Category.NotFound", "Kategori bulunamadı."));
 
         // Get owner info (should exist via integration event from User module)
         var ownerInfo = await _ownerInfoRepository.GetByUserIdAsync(userId.Value, cancellationToken);
         if (ownerInfo is null)
-            return Result.Failure<Guid>("Kullanıcı bilgisi bulunamadı. Lütfen profil bilgilerinizi tamamlayın.");
+            return Result.Failure<Guid>(Error.NotFound("OwnerInfo.NotFound", "Kullanıcı bilgisi bulunamadı. Lütfen profil bilgilerinizi tamamlayın."));
 
         // Create advert
         var price = Money.Create(dto.Price, dto.Currency);

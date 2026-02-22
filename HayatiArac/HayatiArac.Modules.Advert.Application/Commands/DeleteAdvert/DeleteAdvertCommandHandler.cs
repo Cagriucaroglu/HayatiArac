@@ -25,15 +25,15 @@ public sealed class DeleteAdvertCommandHandler : IRequestHandler<DeleteAdvertCom
     {
         var userId = _currentUserService.UserId;
         if (!userId.HasValue)
-            return Result.Failure("Kullanıcı doğrulanamadı.");
+            return Result.Failure<Unit>(Error.Unauthorized("User.Unauthorized", "Kullanıcı doğrulanamadı."));
 
         var advert = await _advertRepository.GetByIdAsync(request.AdvertId, cancellationToken);
         if (advert is null)
-            return Result.Failure("İlan bulunamadı.");
+            return Result.Failure<Unit>(Error.NotFound("Advert.NotFound", "İlan bulunamadı."));
 
         // Authorization: only owner can delete
         if (advert.OwnerUserId != userId.Value)
-            return Result.Failure("Bu ilanı silme yetkiniz yok.");
+            return Result.Failure<Unit>(Error.Forbidden("Advert.NotOwner", "Bu ilanı silme yetkiniz yok."));
 
         await _advertRepository.DeleteAsync(advert, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

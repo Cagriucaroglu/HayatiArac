@@ -25,5 +25,10 @@ public class UserProfileConfiguration : IEntityTypeConfiguration<UserProfile>
 
         builder.Property(p => p.AvatarUrl).HasMaxLength(500);
         builder.Property(p => p.Bio).HasMaxLength(1000);
+
+        builder.HasOne(p => p.User)
+            .WithOne(u => u.Profile)
+            .HasForeignKey<UserProfile>(p => p.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

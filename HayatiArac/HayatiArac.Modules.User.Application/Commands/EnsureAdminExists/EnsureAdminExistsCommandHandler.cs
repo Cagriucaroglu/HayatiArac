@@ -41,7 +41,6 @@ public sealed class EnsureAdminExistsCommandHandler : IRequestHandler<EnsureAdmi
         
         var admin = new ApplicationUser
         {
-            Id = Guid.NewGuid(),
             UserName = adminEmail,
             Email = adminEmail,
             FirstName = "Admin",
@@ -51,7 +50,6 @@ public sealed class EnsureAdminExistsCommandHandler : IRequestHandler<EnsureAdmi
             Role = UserRole.Admin,
             IsEmailVerified = true,
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
         };
 
         await _userRepository.AddAsync(admin, cancellationToken);

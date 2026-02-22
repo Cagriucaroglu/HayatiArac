@@ -26,17 +26,17 @@ public sealed class UpdateAdvertCommandHandler : IRequestHandler<UpdateAdvertCom
     {
         var userId = _currentUserService.UserId;
         if (!userId.HasValue)
-            return Result.Failure("Kullanıcı doğrulanamadı.");
+            return Result.Failure<Unit>(Error.Unauthorized("User.Unauthorized", "Kullanıcı doğrulanamadı."));
 
         var dto = request.Request;
 
         var advert = await _advertRepository.GetByIdAsync(dto.Id, cancellationToken);
         if (advert is null)
-            return Result.Failure("İlan bulunamadı.");
+            return Result.Failure<Unit>(Error.NotFound("Advert.NotFound", "İlan bulunamadı."));
 
         // Authorization: only owner can update
         if (advert.OwnerUserId != userId.Value)
-            return Result.Failure("Bu ilanı güncelleme yetkiniz yok.");
+            return Result.Failure<Unit>(Error.Forbidden("Advert.NotOwner", "Bu ilanı güncelleme yetkiniz yok."));
 
         var price = Money.Create(dto.Price, dto.Currency);
         var location = Location.Create(dto.City, dto.District);

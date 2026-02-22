@@ -9,8 +9,8 @@ public class UserDbContext : DbContext, IUnitOfWork
     public const string SchemaName = "users";
 
     public DbSet<ApplicationUser> Users => Set<ApplicationUser>();
-    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
 
     public UserDbContext(DbContextOptions<UserDbContext> options) : base(options) { }
 

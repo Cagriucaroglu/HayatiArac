@@ -1,4 +1,4 @@
-using HayatiArac.Modules.User.Application.Commands.Login;
+using HayatiArac.Modules.User.Application.Commands.Register;
 using HayatiArac.Modules.User.Application.DTOs;
 using HayatiArac.SharedKernel.Infrastructure;
 using MediatR;
@@ -9,36 +9,33 @@ using Microsoft.AspNetCore.Routing;
 
 namespace HayatiArac.Modules.User.Infrastructure.Endpoints;
 
-internal sealed class LoginEndpoint : IEndpoint
+internal sealed class RegisterEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("api/users/login", async (
-            [FromBody] LoginRequest request,
-            HttpContext httpContext,
+        app.MapPost("api/users/register", async (
+            [FromBody] RegisterRequest request,
             ISender sender,
             CancellationToken cancellationToken) =>
         {
-            var ipAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-
-            var command = new LoginCommand(
-                request.EmailOrUsername,
+            var command = new RegisterUserCommand(
+                request.Email,
                 request.Password,
-                request.RememberMe,
-                ipAddress);
+                request.FirstName,
+                request.LastName);
 
             var result = await sender.Send(command, cancellationToken);
 
             return result.IsSuccess
-                ? Results.Ok(result.Value)
+                ? Results.Created($"api/users/{result.Value.UserId}", result.Value)
                 : Results.BadRequest(new { error = result.Error.Code, message = result.Error.Message });
         })
-        .WithName("Login")
-        .WithSummary("User login with JWT")
-        .WithDescription("Login with email/username and password. Returns JWT access and refresh tokens.")
+        .WithName("Register")
+        .WithSummary("User registration")
+        .WithDescription("Register a new user account")
         .WithTags("Authentication")
         .AllowAnonymous()
-        .Produces<LoginResponse>(StatusCodes.Status200OK)
+        .Produces<RegisterUserResponse>(StatusCodes.Status201Created)
         .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
     }
 }

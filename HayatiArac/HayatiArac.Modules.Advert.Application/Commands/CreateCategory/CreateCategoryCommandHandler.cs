@@ -24,7 +24,7 @@ public sealed class CreateCategoryCommandHandler : IRequestHandler<CreateCategor
         // Check if slug already exists
         var existingCategory = await _categoryRepository.GetBySlugAsync(request.Slug, cancellationToken);
         if (existingCategory is not null)
-            return Result.Failure<Guid>("Bu slug zaten kullanılıyor.");
+            return Result.Failure<Guid>(Error.Conflict("Category.SlugExists", "Bu slug zaten kullanılıyor."));
 
         var category = Category.Create(
             request.Name,

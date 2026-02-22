@@ -19,7 +19,7 @@ public sealed class GetAdvertByIdQueryHandler : IRequestHandler<GetAdvertByIdQue
         var advert = await _advertRepository.GetByIdWithDetailsAsync(request.AdvertId, cancellationToken);
 
         if (advert is null)
-            return Result.Failure<AdvertDto>("İlan bulunamadı.");
+            return Result.Failure<AdvertDto>(Error.NotFound("Advert.NotFound", "İlan bulunamadı."));
 
         var dto = new AdvertDto(
             advert.Id,

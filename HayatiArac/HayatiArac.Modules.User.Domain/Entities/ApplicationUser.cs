@@ -1,10 +1,10 @@
 using HayatiArac.Modules.User.Domain.Enums;
+using HayatiArac.SharedKernel.Domain;
 
 namespace HayatiArac.Modules.User.Domain.Entities;
 
-public class ApplicationUser
+public class ApplicationUser : BaseEntity
 {
-    public Guid Id { get; set; }
     public string UserName { get; set; } = string.Empty;
     public string FirstName { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;
@@ -14,7 +14,6 @@ public class ApplicationUser
     public UserRole Role { get; set; } = UserRole.User;
     public bool IsEmailVerified { get; set; } = false;
     public bool IsActive { get; set; } = true;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastLoginAt { get; set; }
 
     // Authentication security fields
@@ -22,7 +21,7 @@ public class ApplicationUser
     public DateTime? LockoutEnd { get; set; }
     public DateTime? LastPasswordChangedAt { get; set; }
 
-    public UserProfile? Profile { get; set; }
+    public UserProfile? Profile { get; private set; }
 
     public string FullName => $"{FirstName} {LastName}";
 
@@ -48,14 +47,12 @@ public class ApplicationUser
     {
         return new ApplicationUser
         {
-            Id = Guid.NewGuid(),
             Email = email,
             UserName = email,
             FirstName = firstName,
             LastName = lastName,
             PasswordHash = passwordHash,
             Role = UserRole.User,
-            CreatedAt = DateTime.UtcNow,
             IsActive = true,
             IsEmailVerified = false
         };

@@ -43,23 +43,4 @@ public class UserRepository : IUserRepository
         _context.Users.Update(user);
         await _context.SaveChangesAsync(cancellationToken);
     }
-
-    // UserProfile operations
-    public async Task<UserProfile?> GetProfileByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
-    {
-        return await _context.UserProfiles
-            .FirstOrDefaultAsync(p => p.UserId == userId, cancellationToken);
-    }
-
-    public async Task CreateProfileAsync(UserProfile profile, CancellationToken cancellationToken = default)
-    {
-        await _context.UserProfiles.AddAsync(profile, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
-
-    public async Task UpdateProfileAsync(UserProfile profile, CancellationToken cancellationToken = default)
-    {
-        _context.UserProfiles.Update(profile);
-        await _context.SaveChangesAsync(cancellationToken);
-    }
 }

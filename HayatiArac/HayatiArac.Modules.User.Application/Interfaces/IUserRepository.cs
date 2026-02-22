@@ -10,9 +10,4 @@ public interface IUserRepository
     Task<ApplicationUser?> GetByUsernameAsync(string username, CancellationToken cancellationToken = default);
     Task AddAsync(ApplicationUser user, CancellationToken cancellationToken = default);
     Task UpdateAsync(ApplicationUser user, CancellationToken cancellationToken = default);
-
-    // UserProfile operations
-    Task<UserProfile?> GetProfileByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-    Task CreateProfileAsync(UserProfile profile, CancellationToken cancellationToken = default);
-    Task UpdateProfileAsync(UserProfile profile, CancellationToken cancellationToken = default);
 }

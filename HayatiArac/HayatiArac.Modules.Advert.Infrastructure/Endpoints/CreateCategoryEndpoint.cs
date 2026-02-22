@@ -32,10 +32,12 @@ internal sealed class CreateCategoryEndpoint : IEndpoint
                 : Results.BadRequest(result.Error);
         })
         .WithName("CreateCategory")
-        .WithSummary("Yeni kategori oluştur")
+        .WithSummary("Yeni kategori oluştur (Admin only)")
         .WithTags("Adverts")
-        .AllowAnonymous() // Geliştirme için - Production'da RequireAuthorization() kullan
+        .RequireAuthorization(policy => policy.RequireRole("Admin"))
         .Produces<Guid>(StatusCodes.Status201Created)
-        .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
+        .Produces<ProblemDetails>(StatusCodes.Status400BadRequest)
+        .Produces(StatusCodes.Status401Unauthorized)
+        .Produces(StatusCodes.Status403Forbidden);
     }
 }

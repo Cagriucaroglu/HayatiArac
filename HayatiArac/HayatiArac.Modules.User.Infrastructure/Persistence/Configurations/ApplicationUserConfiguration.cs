@@ -49,11 +49,5 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.HasIndex(u => u.UserName)
             .IsUnique();
-
-        // Relationship with UserProfile
-        builder.HasOne(u => u.Profile)
-            .WithOne()
-            .HasForeignKey<UserProfile>(p => p.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
