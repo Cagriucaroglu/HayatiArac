@@ -5,5 +5,6 @@ public enum AdvertStatus
     Active = 1,
     Inactive = 2,
     Sold = 3,
-    Deleted = 4
+    Deleted = 4,
+    Expired = 5
 }

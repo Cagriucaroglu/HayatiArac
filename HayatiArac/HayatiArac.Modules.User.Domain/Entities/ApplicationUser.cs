@@ -23,7 +23,12 @@ public class ApplicationUser : BaseEntity
 
     public UserProfile? Profile { get; private set; }
 
+    public bool IsPhoneVerified { get; private set; } = false;
+    public DateTime? PhoneVerifiedAt { get; private set; }
+    public DateTime? EmailVerifiedAt { get; private set; }
+
     public string FullName => $"{FirstName} {LastName}";
+    public bool IsFullyVerified => IsEmailVerified && IsPhoneVerified;
 
     // Helper methods for authentication
     public bool IsLockedOut() => LockoutEnd.HasValue && LockoutEnd.Value > DateTime.UtcNow;
@@ -43,6 +48,42 @@ public class ApplicationUser : BaseEntity
         LastName = lastName;
     }
 
+    public void SetEmailVerified()
+    {
+        IsEmailVerified = true;
+        EmailVerifiedAt = DateTime.UtcNow;
+        if (IsFullyVerified)
+            IsActive = true;
+    }
+
+    public void SetPhoneVerified()
+    {
+        IsPhoneVerified = true;
+        PhoneVerifiedAt = DateTime.UtcNow;
+        if (IsFullyVerified)
+            IsActive = true;
+    }
+
+    // Kayıt akışı için — doğrulama tamamlanana kadar pasif
+    public static ApplicationUser Register(
+        string email, string firstName, string lastName, string passwordHash, string? phoneNumber)
+    {
+        return new ApplicationUser
+        {
+            Email = email,
+            UserName = email,
+            FirstName = firstName,
+            LastName = lastName,
+            PasswordHash = passwordHash,
+            PhoneNumber = phoneNumber,
+            Role = UserRole.User,
+            IsActive = false,
+            IsEmailVerified = false,
+            IsPhoneVerified = false
+        };
+    }
+
+    // Admin/sistem oluşturma için — doğrulama atlanır
     public static ApplicationUser Create(string email, string firstName, string lastName, string passwordHash)
     {
         return new ApplicationUser
@@ -54,7 +95,8 @@ public class ApplicationUser : BaseEntity
             PasswordHash = passwordHash,
             Role = UserRole.User,
             IsActive = true,
-            IsEmailVerified = false
+            IsEmailVerified = true,
+            IsPhoneVerified = true
         };
     }
 }

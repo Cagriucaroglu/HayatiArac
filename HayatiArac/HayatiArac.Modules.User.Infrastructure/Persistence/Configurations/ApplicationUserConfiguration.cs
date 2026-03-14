@@ -36,6 +36,14 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
         builder.Property(u => u.PhoneNumber)
             .HasMaxLength(20);
 
+        builder.Property(u => u.IsPhoneVerified)
+            .IsRequired()
+            .HasDefaultValue(false);
+
+        builder.Property(u => u.PhoneVerifiedAt);
+
+        builder.Property(u => u.EmailVerifiedAt);
+
         builder.Property(u => u.Role)
             .IsRequired()
             .HasConversion<string>()
@@ -49,5 +57,10 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 
         builder.HasIndex(u => u.UserName)
             .IsUnique();
+
+        // Telefon numarası benzersizliği — NULL olan kayıtlar hariç
+        builder.HasIndex(u => u.PhoneNumber)
+            .IsUnique()
+            .HasFilter("[PhoneNumber] IS NOT NULL");
     }
 }

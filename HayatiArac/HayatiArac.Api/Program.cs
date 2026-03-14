@@ -1,9 +1,11 @@
 using HayatiArac.Modules.Advert.Infrastructure;
+using HayatiArac.Modules.User.Application.Interfaces;
 using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,6 +39,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidAudience = jwtSettings["Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
             ClockSkew = TimeSpan.Zero
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var jti = context.Principal?.Claims
+                    .FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+
+                if (string.IsNullOrEmpty(jti))
+                {
+                    context.Fail("Missing JTI claim");
+                    return;
+                }
+
+                var blacklistService = context.HttpContext.RequestServices
+                    .GetRequiredService<ITokenBlacklistService>();
+
+                if (await blacklistService.IsTokenRevokedAsync(jti))
+                    context.Fail("Token has been revoked");
+            }
         };
     });
 

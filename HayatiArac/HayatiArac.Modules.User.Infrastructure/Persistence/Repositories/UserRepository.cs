@@ -32,6 +32,12 @@ public class UserRepository : IUserRepository
             .FirstOrDefaultAsync(u => u.UserName == username, cancellationToken);
     }
 
+    public async Task<ApplicationUser?> GetByPhoneAsync(string phoneNumber, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(u => u.PhoneNumber == phoneNumber, cancellationToken);
+    }
+
     public async Task AddAsync(ApplicationUser user, CancellationToken cancellationToken = default)
     {
         await _context.Users.AddAsync(user, cancellationToken);

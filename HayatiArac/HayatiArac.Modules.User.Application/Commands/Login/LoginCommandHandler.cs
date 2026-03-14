@@ -38,15 +38,15 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<L
 
         // Check if account is locked
         if (user.IsLockedOut())
-        {
-            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountLocked", "Account is locked. Please try again later."));
-        }
+            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountLocked", "Hesabiniz kilitlendi. Lutfen daha sonra tekrar deneyin."));
+
+        // E-posta ve telefon doğrulaması tamamlanmamışsa engelle
+        if (!user.IsFullyVerified)
+            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountNotVerified", "Hesabiniz dogrulanmamis. Lutfen e-posta ve telefon dogrulamasini tamamlayiniz."));
 
         // Check if account is active
         if (!user.IsActive)
-        {
-            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountInactive", "Account is inactive"));
-        }
+            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountInactive", "Hesabiniz aktif degil."));
 
         // Verify password
         var isPasswordValid = _passwordHasher.VerifyPassword(request.Password, user.PasswordHash);

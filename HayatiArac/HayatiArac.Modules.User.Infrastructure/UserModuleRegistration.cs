@@ -5,6 +5,7 @@ using HayatiArac.Modules.User.Infrastructure.Persistence;
 using HayatiArac.Modules.User.Infrastructure.Persistence.Repositories;
 using HayatiArac.Modules.User.Infrastructure.Services;
 using HayatiArac.Modules.User.Infrastructure.Services.Authentication;
+using HayatiArac.Modules.User.Infrastructure.Services.Cache;
 using HayatiArac.SharedKernel.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -31,10 +32,29 @@ public class UserModuleRegistration : IModuleRegistration
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 
+        // Redis Cache
+        services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = configuration.GetConnectionString("Redis");
+            options.InstanceName = "HayatiArac:";
+        });
+
         // Services
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<ICacheService, RedisCacheService>();
+        services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+        services.AddScoped<IOtpService, RedisOtpService>();
+        services.AddScoped<IEmailService, SmtpEmailService>();
+        services.AddScoped<ISmsService, NetgsmSmsService>();
+
+        // HttpClient for Netgsm
+        services.AddHttpClient<NetgsmSmsService>();
+
+        // Settings
+        services.Configure<NetgsmSettings>(configuration.GetSection(NetgsmSettings.SectionName));
+        services.Configure<SmtpSettings>(configuration.GetSection(SmtpSettings.SectionName));
 
         // Hosted Services (Database initialization)
         services.AddHostedService<DatabaseInitializerService>();

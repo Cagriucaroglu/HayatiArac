@@ -5,4 +5,4 @@ public sealed record RegisterRequest(
     string Password,
     string FirstName,
     string LastName,
-    string? PhoneNumber = null);
+    string PhoneNumber);
