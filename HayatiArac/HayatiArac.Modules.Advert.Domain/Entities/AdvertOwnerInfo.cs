@@ -10,6 +10,8 @@ public class AdvertOwnerInfo : BaseEntity
     public string DisplayName { get; private set; } = string.Empty;
     public string Email { get; private set; } = string.Empty;
     public string? City { get; private set; }
+    public string? PhoneNumber { get; private set; }
+    public DateTime? LastAdvertPublishedAt { get; private set; }
 
     private AdvertOwnerInfo() { }
 
@@ -30,6 +32,18 @@ public class AdvertOwnerInfo : BaseEntity
     {
         DisplayName = displayName;
         City = city;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdatePhone(string? phoneNumber)
+    {
+        PhoneNumber = phoneNumber;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void UpdateLastPublished()
+    {
+        LastAdvertPublishedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
 }

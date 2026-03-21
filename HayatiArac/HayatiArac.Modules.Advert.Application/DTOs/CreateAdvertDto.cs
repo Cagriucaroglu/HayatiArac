@@ -11,5 +11,6 @@ public sealed record CreateAdvertDto(
     string District,
     AdvertCondition Condition,
     Guid CategoryId,
+    bool ShowPhoneNumber,
     List<string>? ImageUrls
 );

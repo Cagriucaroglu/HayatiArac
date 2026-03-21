@@ -25,4 +25,10 @@ public interface IAdvertRepository : IRepository<Domain.Entities.Advert>
         CancellationToken cancellationToken = default);
 
     Task<List<Domain.Entities.Advert>> GetByOwnerUserIdAsync(Guid ownerUserId, CancellationToken cancellationToken = default);
+
+    /// <summary>Kullanıcının aktif ilanı varsa döner (tek ilan kuralı).</summary>
+    Task<Domain.Entities.Advert?> GetActiveAdvertByUserAsync(Guid ownerUserId, CancellationToken cancellationToken = default);
+
+    /// <summary>Süresi dolmuş ve henüz Expired statüsüne geçirilmemiş ilanları batch olarak döner.</summary>
+    Task<List<Domain.Entities.Advert>> GetExpiredAdvertsBatchAsync(int batchSize, int offset, CancellationToken cancellationToken = default);
 }

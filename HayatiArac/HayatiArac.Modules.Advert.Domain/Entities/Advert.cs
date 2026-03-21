@@ -17,6 +17,8 @@ public class Advert : AggregateRoot
     public Category Category { get; private set; } = null!;
     public Guid OwnerUserId { get; private set; }
     public AdvertOwnerInfo OwnerInfo { get; private set; } = null!;
+    public DateTime ExpiresAt { get; private set; }
+    public bool ShowPhoneNumber { get; private set; }
 
     private readonly List<AdvertImage> _images = new();
     public IReadOnlyCollection<AdvertImage> Images => _images.AsReadOnly();
@@ -31,8 +33,10 @@ public class Advert : AggregateRoot
         AdvertCondition condition,
         Guid categoryId,
         Guid ownerUserId,
-        AdvertOwnerInfo ownerInfo)
+        AdvertOwnerInfo ownerInfo,
+        bool showPhoneNumber = false)
     {
+        var now = DateTime.UtcNow;
         var advert = new Advert
         {
             Id = Guid.NewGuid(),
@@ -45,7 +49,9 @@ public class Advert : AggregateRoot
             CategoryId = categoryId,
             OwnerUserId = ownerUserId,
             OwnerInfo = ownerInfo,
-            CreatedAt = DateTime.UtcNow
+            ShowPhoneNumber = showPhoneNumber,
+            ExpiresAt = now.AddDays(30),
+            CreatedAt = now
         };
 
         advert.AddDomainEvent(new AdvertCreatedDomainEvent(advert.Id, title, ownerUserId));
@@ -86,5 +92,15 @@ public class Advert : AggregateRoot
     {
         Status = AdvertStatus.Sold;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void Expire()
+    {
+        if (Status == AdvertStatus.Active)
+        {
+            Status = AdvertStatus.Expired;
+            UpdatedAt = DateTime.UtcNow;
+            AddDomainEvent(new AdvertExpiredDomainEvent(Id, OwnerUserId));
+        }
     }
 }

@@ -14,7 +14,10 @@ public sealed record AdvertDto(
     Guid CategoryId,
     string OwnerDisplayName,
     Guid OwnerUserId,
+    string? OwnerPhoneNumber,   // Yalnızca ShowPhoneNumber=true ise dolu gelir
+    bool ShowPhoneNumber,
     List<string> ImageUrls,
     DateTime CreatedAt,
+    DateTime ExpiresAt,
     DateTime? UpdatedAt
 );

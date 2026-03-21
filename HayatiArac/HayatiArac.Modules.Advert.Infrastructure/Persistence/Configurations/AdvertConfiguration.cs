@@ -80,6 +80,9 @@ public class AdvertConfiguration : IEntityTypeConfiguration<Domain.Entities.Adve
         // Ignore domain events collection
         builder.Ignore(x => x.DomainEvents);
 
+        builder.Property(x => x.ExpiresAt).IsRequired();
+        builder.Property(x => x.ShowPhoneNumber).IsRequired().HasDefaultValue(false);
+
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt);
 
@@ -88,5 +91,12 @@ public class AdvertConfiguration : IEntityTypeConfiguration<Domain.Entities.Adve
         builder.HasIndex(x => x.CategoryId);
         builder.HasIndex(x => x.OwnerUserId);
         builder.HasIndex(x => x.CreatedAt);
+        builder.HasIndex(x => x.ExpiresAt);
+
+        // Partial unique index: bir kullanıcının aynı anda yalnızca 1 aktif ilanı (race condition koruması)
+        builder.HasIndex(x => x.OwnerUserId)
+            .IsUnique()
+            .HasFilter("[Status] = 'Active'")
+            .HasDatabaseName("IX_Adverts_OwnerUserId_Active");
     }
 }

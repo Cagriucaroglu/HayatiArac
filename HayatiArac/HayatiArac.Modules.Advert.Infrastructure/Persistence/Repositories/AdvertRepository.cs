@@ -131,6 +131,26 @@ public class AdvertRepository : IAdvertRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<Domain.Entities.Advert?> GetActiveAdvertByUserAsync(Guid ownerUserId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Adverts
+            .FirstOrDefaultAsync(a =>
+                a.OwnerUserId == ownerUserId &&
+                a.Status == AdvertStatus.Active,
+                cancellationToken);
+    }
+
+    public async Task<List<Domain.Entities.Advert>> GetExpiredAdvertsBatchAsync(
+        int batchSize, int offset, CancellationToken cancellationToken = default)
+    {
+        return await _context.Adverts
+            .Where(a => a.Status == AdvertStatus.Active && a.ExpiresAt <= DateTime.UtcNow)
+            .OrderBy(a => a.ExpiresAt)
+            .Skip(offset)
+            .Take(batchSize)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Domain.Entities.Advert> AddAsync(Domain.Entities.Advert entity, CancellationToken cancellationToken = default)
     {
         await _context.Adverts.AddAsync(entity, cancellationToken);
