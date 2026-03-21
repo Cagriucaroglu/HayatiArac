@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /d/GitHub/PROJECTS/HayatiArac/HayatiArac -type d -not -path */obj/* -not -path */bin/* -not -path */.vs/*)"
+    ]
+  }
+}
