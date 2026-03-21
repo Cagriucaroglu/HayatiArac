@@ -1,6 +1,11 @@
 # HayatiArac
 
-HayatiArac is a backend API for a second-hand vehicle marketplace. Users can register, verify their identity, and publish vehicle listings. The platform enforces strict publishing rules — one active listing per user, a 30-day cooldown between listings, and automatic expiry — to keep the marketplace fair and up-to-date.
+HayatiArac is a backend API for a second-hand vehicle marketplace.
+
+## Project Overview
+
+![HayatiArac](assets/HayatiArac.png)
+ Users can register, verify their identity, and publish vehicle listings. The platform enforces strict publishing rules — one active listing per user, a 30-day cooldown between listings, and automatic expiry — to keep the marketplace fair and up-to-date.
 
 ---
 
