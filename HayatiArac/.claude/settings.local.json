@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find /d/GitHub/PROJECTS/HayatiArac/HayatiArac -type d -not -path */obj/* -not -path */bin/* -not -path */.vs/*)"
+      "Bash(find /d/GitHub/PROJECTS/HayatiArac/HayatiArac -type d -not -path */obj/* -not -path */bin/* -not -path */.vs/*)",
+      "Bash(mkdir -p \"D:/GitHub/PROJECTS/MeadiaTR/assets\")",
+      "Bash(cp \"C:/Users/Cagri/Downloads/MediaTR.png\" \"D:/GitHub/PROJECTS/MeadiaTR/assets/MediaTR.png\")"
     ]
   }
 }

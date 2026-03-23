@@ -5,7 +5,8 @@ HayatiArac is a backend API for a second-hand vehicle marketplace.
 ## Project Overview
 
 ![HayatiArac](HayatiArac/assets/HayatiArac.png)
- Users can register, verify their identity, and publish vehicle listings. The platform enforces strict publishing rules — one active listing per user, a 30-day cooldown between listings, and automatic expiry — to keep the marketplace fair and up-to-date.
+
+Users can register, verify their identity, and publish vehicle listings. The platform enforces strict publishing rules — one active listing per user, a 30-day cooldown between listings, and automatic expiry — to keep the marketplace fair and up-to-date.
 
 ---
 
@@ -69,16 +70,21 @@ HayatiArac is a backend API for a second-hand vehicle marketplace.
 ## The Process
 
 ### `Initial commit`
-Project structure established. Modular monolith skeleton with `User` and `Advert` modules, `SharedKernel`, and a single API host.
+
+> Project structure established. Modular monolith skeleton with `User` and `Advert` modules, `SharedKernel`, and a single API host.
 
 ### `Add Advert module application and persistence` + `Add Advert module DI and registration` + `Add Advert endpoints and EF/Npgsql integration`
-Advert module built out: domain entities (`Advert`, `Category`, `AdvertImage`, `AdvertOwnerInfo`), value objects (`Money`, `Location`), CQRS commands/queries via MediatR, EF Core persistence with PostgreSQL, and Minimal API endpoints for create/update/delete/search.
+
+> Advert module built out: domain entities (`Advert`, `Category`, `AdvertImage`, `AdvertOwnerInfo`), value objects (`Money`, `Location`), CQRS commands/queries via MediatR, EF Core persistence with PostgreSQL, and Minimal API endpoints for create/update/delete/search.
 
 ### `Switch DB provider to SQLite and add migrations`
-Swapped PostgreSQL for SQLite for local development convenience. Added EF Core migrations and design-time `DbContextFactory` classes for both modules.
+
+> Swapped PostgreSQL for SQLite for local development convenience. Added EF Core migrations and design-time `DbContextFactory` classes for both modules.
 
 ### `Add JWT auth, refresh tokens and SQL Server`
+
 Major infrastructure milestone:
+
 - Migrated both modules from SQLite to **SQL Server** (Docker-based)
 - Implemented **JWT authentication** with access and refresh tokens
 - Added `JwtTokenService`, `RefreshToken` entity, `RefreshTokenRepository`
@@ -87,17 +93,20 @@ Major infrastructure milestone:
 - Added `docker-compose.yml` for local SQL Server container
 
 ### `Add login flow and refactor result/error types`
+
 - Implemented complete **login flow**: user lookup, password verification, account lockout, JWT generation
 - Added `LoginCommand`, `LoginCommandHandler`, `LoginRequest`, `LoginResponse`, `LoginEndpoint`
 - Refactored shared result/error types into strongly-typed `Result<T>`, `Error`, and `ErrorType` in SharedKernel
 
 ### `Standardize errors, auth changes and migrations`
+
 - Standardized error handling across all command handlers (`Unauthorized`, `NotFound`, `Forbidden`, `Conflict`)
 - Added `RegisterEndpoint` and `RegisterRequest` DTO
 - Logout now revokes all refresh tokens for the user via `RefreshTokenRepository`
 - Regenerated SQL Server–compatible EF migrations for both modules
 
 ### `Add OTP verification, Redis & token blacklist`
+
 - Added **email and phone OTP verification** to the registration flow
 - New interfaces: `ISmsService`, `IEmailService`, `IOtpService`, `ICacheService`, `ITokenBlacklistService`
 - Implementations: `NetgsmSmsService` (SMS via Netgsm API), `SmtpEmailService`, `RedisOtpService`, `RedisCacheService`, `TokenBlacklistService`
@@ -111,6 +120,7 @@ Major infrastructure milestone:
 - Downgraded MassTransit from 9.x to 8.3.6 (v9 requires a commercial license)
 
 ### `Add advert expiry, cooldown and phone visibility`
+
 - `ExpiresAt` added to `Advert` — set to `CreatedAt + 30 days` on creation
 - `Expire()` domain method raises `AdvertExpiredDomainEvent` and transitions status to `Expired`
 - `ShowPhoneNumber` field on `Advert` — controls whether the owner's phone is returned in the listing DTO
@@ -123,27 +133,60 @@ Major infrastructure milestone:
 
 ## What I Learned
 
-- **Modular monolith architecture** — how to split a single deployable application into cohesive, loosely-coupled modules that communicate via integration events (MassTransit) rather than direct references, making future extraction into microservices straightforward
-- **CQRS with MediatR** — separating reads and writes at the handler level keeps each piece of business logic small, testable, and easy to reason about; validation pipelines via `FluentValidation` plug in cleanly as MediatR behaviors
-- **JWT lifecycle management** — stateless tokens create a revocation problem; solving it with a Redis-backed blacklist indexed by JTI teaches you that "stateless" and "revocable" are in tension and requires careful design
-- **OTP verification flow** — designing a multi-step verification process (register → send OTPs → verify email → verify phone → activate) taught me about TTLs, replay attacks (consume the OTP on first use), and rate-limiting resend requests to prevent abuse
-- **Redis as a versatile tool** — using the same Redis instance for three distinct purposes (OTP storage, token blacklist, and general caching) through a single `ICacheService` abstraction shows how a cache layer can replace several one-off solutions
-- **Partial unique indexes** — a filtered unique index on `(OwnerUserId) WHERE Status = 'Active'` elegantly enforces a business rule at the database level, acting as a last line of defense against race conditions that application-level checks can't fully prevent
-- **Domain-driven design primitives** — value objects (`Money`, `Location`), domain events (`AdvertCreatedDomainEvent`, `AdvertExpiredDomainEvent`), and factory methods (`Advert.Create()`, `ApplicationUser.Register()`) make the domain model expressive and protect invariants without leaking logic into handlers
-- **Background services in .NET** — `IHostedService` / `BackgroundService` for scheduled work (nightly advert expiry) with batched parallel processing using `Parallel.ForEachAsync` and scoped service lifetimes
+- **Modular monolith architecture** —
+  how to split a single deployable application into cohesive, loosely-coupled modules that communicate via integration events (MassTransit) rather than direct references, making future extraction into microservices straightforward
+
+- **CQRS with MediatR** —
+  separating reads and writes at the handler level keeps each piece of business logic small, testable, and easy to reason about; validation pipelines via `FluentValidation` plug in cleanly as MediatR behaviors
+
+- **JWT lifecycle management** —
+  stateless tokens create a revocation problem; solving it with a Redis-backed blacklist indexed by JTI teaches you that "stateless" and "revocable" are in tension and requires careful design
+
+- **OTP verification flow** —
+  designing a multi-step verification process (register → send OTPs → verify email → verify phone → activate) taught me about TTLs, replay attacks (consume the OTP on first use), and rate-limiting resend requests to prevent abuse
+
+- **Redis as a versatile tool** —
+  using the same Redis instance for three distinct purposes (OTP storage, token blacklist, and general caching) through a single `ICacheService` abstraction shows how a cache layer can replace several one-off solutions
+
+- **Partial unique indexes** —
+  a filtered unique index on `(OwnerUserId) WHERE Status = 'Active'` elegantly enforces a business rule at the database level, acting as a last line of defense against race conditions that application-level checks can't fully prevent
+
+- **Domain-driven design primitives** —
+  value objects (`Money`, `Location`), domain events (`AdvertCreatedDomainEvent`, `AdvertExpiredDomainEvent`), and factory methods (`Advert.Create()`, `ApplicationUser.Register()`) make the domain model expressive and protect invariants without leaking logic into handlers
+
+- **Background services in .NET** —
+  `IHostedService` / `BackgroundService` for scheduled work (nightly advert expiry) with batched parallel processing using `Parallel.ForEachAsync` and scoped service lifetimes
 
 ---
 
 ## How Can It Be Improved
 
-- **In-app messaging** — when a listing owner hides their phone number, buyers currently have no way to contact them; a `Message` module with real-time support (SignalR or WebSockets) would complete this feature
-- **Outbox pattern** — integration events are published directly after saving to the database; if the publish step fails the modules go out of sync. An outbox table would make event delivery reliable and idempotent
-- **Distributed background jobs (Hangfire)** — the current `BackgroundService` for advert expiry runs in-process and is tied to a single instance; Hangfire would provide a dashboard, retry logic, and multi-instance safety
-- **Image upload** — listing images are currently stored as URLs; integrating Azure Blob Storage or AWS S3 with a dedicated upload endpoint would be more production-ready
-- **Search with Elasticsearch** — EF Core `Contains` queries do not scale well for full-text search on large datasets; Elasticsearch or Azure Cognitive Search would provide fast, relevant results
-- **Rate limiting** — only OTP resend is rate-limited; adding ASP.NET Core's built-in `RateLimiter` middleware globally (or per endpoint) would protect against brute-force and DDoS attacks
-- **Architecture tests** — `HayatiArac.Architecture.Tests` project exists but is empty; adding NetArchTest rules would enforce layer boundaries (e.g., domain must not reference infrastructure) automatically on every build
-- **Integration tests** — testing the full request/response cycle against a real database (Testcontainers for SQL Server and Redis) would catch issues that unit tests with mocks miss
+- **Production deployment** —
+  the project is currently a fully functional backend but not yet a real shipped product; the next phase is turning it into one: deployed on a Linux server, traffic routed through Nginx as a reverse proxy, connections secured with HTTPS (Let's Encrypt), structured logs written to persistent storage, the environment hardened with firewall rules and non-root containers, and every push to `main` triggering a CI/CD pipeline (GitHub Actions) that builds, tests, and deploys automatically
+
+- **In-app messaging** —
+  when a listing owner hides their phone number, buyers currently have no way to contact them; a `Message` module with real-time support (SignalR or WebSockets) would complete this feature
+
+- **Outbox pattern** —
+  integration events are published directly after saving to the database; if the publish step fails the modules go out of sync. An outbox table would make event delivery reliable and idempotent
+
+- **Distributed background jobs (Hangfire)** —
+  the current `BackgroundService` for advert expiry runs in-process and is tied to a single instance; Hangfire would provide a dashboard, retry logic, and multi-instance safety
+
+- **Image upload** —
+  listing images are currently stored as URLs; integrating Azure Blob Storage or AWS S3 with a dedicated upload endpoint would be more production-ready
+
+- **Search with Elasticsearch** —
+  EF Core `Contains` queries do not scale well for full-text search on large datasets; Elasticsearch or Azure Cognitive Search would provide fast, relevant results
+
+- **Rate limiting** —
+  only OTP resend is rate-limited; adding ASP.NET Core's built-in `RateLimiter` middleware globally (or per endpoint) would protect against brute-force and DDoS attacks
+
+- **Architecture tests** —
+  `HayatiArac.Architecture.Tests` project exists but is empty; adding NetArchTest rules would enforce layer boundaries (e.g., domain must not reference infrastructure) automatically on every build
+
+- **Integration tests** —
+  testing the full request/response cycle against a real database (Testcontainers for SQL Server and Redis) would catch issues that unit tests with mocks miss
 
 ---
 
