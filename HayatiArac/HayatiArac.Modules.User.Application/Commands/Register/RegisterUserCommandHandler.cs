@@ -62,9 +62,10 @@ public sealed class RegisterUserCommandHandler : IRequestHandler<RegisterUserCom
         var emailOtp = await _otpService.GenerateAndStoreAsync($"otp:email:{user.Id}", cancellationToken);
         var phoneOtp = await _otpService.GenerateAndStoreAsync($"otp:phone:{user.Id}", cancellationToken);
 
+        var fullPhoneNumber = request.PhoneCountryCode + user.PhoneNumber;
         await Task.WhenAll(
             _emailService.SendOtpAsync(user.Email, emailOtp, cancellationToken),
-            _smsService.SendOtpAsync(user.PhoneNumber!, phoneOtp, cancellationToken)
+            _smsService.SendOtpAsync(fullPhoneNumber, phoneOtp, cancellationToken)
         );
 
         // Integration event yayınla (Advert modülüne AdvertOwnerInfo oluşturması için)

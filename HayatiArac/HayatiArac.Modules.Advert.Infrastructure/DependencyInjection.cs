@@ -34,6 +34,7 @@ public static class DependencyInjection
         // Services
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+        services.AddHostedService<AdvertExpiryBackgroundService>();
 
         return services;
     }

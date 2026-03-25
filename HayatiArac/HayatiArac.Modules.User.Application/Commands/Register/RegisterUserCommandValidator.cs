@@ -25,5 +25,9 @@ public sealed class RegisterUserCommandValidator : AbstractValidator<RegisterUse
         RuleFor(x => x.PhoneNumber)
             .NotEmpty().WithMessage("Telefon numarasi gereklidir.")
             .Matches(@"^\d{10}$").WithMessage("Telefon numarasi 10 haneli olmali ve sadece rakam icermeli (baskode olmadan, ornek: 5551234567).");
+
+        RuleFor(x => x.PhoneCountryCode)
+            .NotEmpty().WithMessage("Telefon ulke kodu gereklidir.")
+            .Matches(@"^\d{1,4}$").WithMessage("Ulke kodu gecersiz (ornek: 90).");
     }
 }

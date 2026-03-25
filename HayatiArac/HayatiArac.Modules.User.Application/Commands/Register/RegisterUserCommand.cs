@@ -8,7 +8,8 @@ public sealed record RegisterUserCommand(
     string Password,
     string FirstName,
     string LastName,
-    string PhoneNumber
+    string PhoneNumber,
+    string PhoneCountryCode
 ) : IRequest<Result<RegisterUserResponse>>;
 
 public sealed record RegisterUserResponse(

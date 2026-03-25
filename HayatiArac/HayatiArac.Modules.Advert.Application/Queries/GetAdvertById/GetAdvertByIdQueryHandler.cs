@@ -35,8 +35,11 @@ public sealed class GetAdvertByIdQueryHandler : IRequestHandler<GetAdvertByIdQue
             advert.CategoryId,
             advert.OwnerInfo.DisplayName,
             advert.OwnerUserId,
+            advert.ShowPhoneNumber ? advert.OwnerInfo.PhoneNumber : null,
+            advert.ShowPhoneNumber,
             advert.Images.Select(img => img.Url).ToList(),
             advert.CreatedAt,
+            advert.ExpiresAt,
             advert.UpdatedAt);
 
         return Result.Success(dto);

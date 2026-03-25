@@ -22,7 +22,9 @@ internal sealed class RegisterEndpoint : IEndpoint
                 request.Email,
                 request.Password,
                 request.FirstName,
-                request.LastName);
+                request.LastName,
+                request.PhoneNumber,
+                request.PhoneCountryCode);
 
             var result = await sender.Send(command, cancellationToken);
 

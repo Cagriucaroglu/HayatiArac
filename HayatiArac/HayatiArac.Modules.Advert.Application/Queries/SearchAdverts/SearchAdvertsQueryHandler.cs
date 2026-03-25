@@ -1,5 +1,6 @@
 using HayatiArac.Modules.Advert.Application.DTOs;
 using HayatiArac.Modules.Advert.Application.Interfaces;
+using HayatiArac.Modules.Advert.Domain.Entities;
 using HayatiArac.SharedKernel.Application;
 using MediatR;
 
@@ -49,8 +50,11 @@ public sealed class SearchAdvertsQueryHandler
             a.CategoryId,
             a.OwnerInfo.DisplayName,
             a.OwnerUserId,
+            a.ShowPhoneNumber ? a.OwnerInfo.PhoneNumber : null,
+            a.ShowPhoneNumber,
             a.Images.Select(img => img.Url).ToList(),
             a.CreatedAt,
+            a.ExpiresAt,
             a.UpdatedAt
         )).ToList();
 
