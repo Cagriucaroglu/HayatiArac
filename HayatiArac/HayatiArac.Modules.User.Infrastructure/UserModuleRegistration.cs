@@ -40,7 +40,6 @@ public class UserModuleRegistration : IModuleRegistration
         });
 
         // Services
-        services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, BcryptPasswordHasher>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ICacheService, RedisCacheService>();

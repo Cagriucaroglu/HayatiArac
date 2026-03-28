@@ -1,4 +1,4 @@
-namespace HayatiArac.Modules.User.Application.Interfaces;
+namespace HayatiArac.SharedKernel.Application.Interfaces;
 
 public interface ICurrentUserService
 {

@@ -1,5 +1,6 @@
 using HayatiArac.Api;
 using HayatiArac.Modules.Advert.Infrastructure;
+using HayatiArac.SharedKernel.Infrastructure;
 using HayatiArac.Modules.User.Application.Interfaces;
 using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
@@ -64,6 +65,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddAuthorization();
+
+// SharedKernel — ICurrentUserService ve cross-cutting servisler
+builder.Services.AddSharedKernel();
 
 // Module registrations
 var modules = new IModuleRegistration[]

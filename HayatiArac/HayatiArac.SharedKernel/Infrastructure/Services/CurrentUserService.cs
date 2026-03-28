@@ -1,10 +1,10 @@
-using System.Security.Claims;
-using HayatiArac.Modules.User.Application.Interfaces;
+using HayatiArac.SharedKernel.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 
-namespace HayatiArac.Modules.User.Infrastructure.Services;
+namespace HayatiArac.SharedKernel.Infrastructure.Services;
 
-public class CurrentUserService : ICurrentUserService
+public sealed class CurrentUserService : ICurrentUserService
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
 
@@ -17,9 +17,9 @@ public class CurrentUserService : ICurrentUserService
     {
         get
         {
-            var userId = _httpContextAccessor.HttpContext?.User
+            var value = _httpContextAccessor.HttpContext?.User
                 .FindFirstValue(ClaimTypes.NameIdentifier);
-            return userId != null ? Guid.Parse(userId) : null;
+            return Guid.TryParse(value, out var id) ? id : null;
         }
     }
 

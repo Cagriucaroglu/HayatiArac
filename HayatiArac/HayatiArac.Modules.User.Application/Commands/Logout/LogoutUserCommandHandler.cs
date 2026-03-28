@@ -1,4 +1,5 @@
 using HayatiArac.Modules.User.Application.Interfaces;
+using HayatiArac.SharedKernel.Application.Interfaces;
 using MediatR;
 
 namespace HayatiArac.Modules.User.Application.Commands.Logout;

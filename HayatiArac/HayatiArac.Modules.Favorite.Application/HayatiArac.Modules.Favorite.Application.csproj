@@ -1,5 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
+  <ItemGroup>
+    <ProjectReference Include="..\HayatiArac.Modules.Favorite.Domain\HayatiArac.Modules.Favorite.Domain.csproj" />
+    <ProjectReference Include="..\HayatiArac.SharedKernel\HayatiArac.SharedKernel.csproj" />
+    <ProjectReference Include="..\HayatiArac.Modules.Advert.IntegrationEvents\HayatiArac.Modules.Advert.IntegrationEvents.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MassTransit" Version="8.3.6" />
+    <PackageReference Include="MediatR" Version="14.0.0" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
