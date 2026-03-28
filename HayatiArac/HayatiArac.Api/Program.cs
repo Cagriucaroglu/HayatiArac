@@ -1,3 +1,4 @@
+using HayatiArac.Api;
 using HayatiArac.Modules.Advert.Infrastructure;
 using HayatiArac.Modules.User.Application.Interfaces;
 using HayatiArac.Modules.User.Infrastructure;
@@ -92,6 +93,10 @@ builder.Services.AddMassTransit(x =>
 });
 
 var app = builder.Build();
+
+// Otomatik migration
+var startupLogger = app.Services.GetRequiredService<ILogger<Program>>();
+await DbInitializer.MigrateAsync(app.Services, startupLogger);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

@@ -9,6 +9,14 @@ public sealed record SearchAdvertsRequestDto(
     AdvertStatus? Status,
     decimal? MinPrice,
     decimal? MaxPrice,
+    string? Brand,
+    string? Model,
+    int? MinYear,
+    int? MaxYear,
+    int? MaxMileage,
+    FuelType? FuelType,
+    TransmissionType? TransmissionType,
+    bool? HasHeavyDamageRecord,
     int PageNumber = 1,
     int PageSize = 20
 );

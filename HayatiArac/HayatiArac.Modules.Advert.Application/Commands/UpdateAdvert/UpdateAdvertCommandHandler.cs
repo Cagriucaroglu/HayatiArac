@@ -1,7 +1,9 @@
 using HayatiArac.Modules.Advert.Application.Interfaces;
 using HayatiArac.Modules.Advert.Domain.ValueObjects;
+using HayatiArac.Modules.Advert.IntegrationEvents;
 using HayatiArac.SharedKernel.Application;
 using HayatiArac.SharedKernel.Application.Interfaces;
+using MassTransit;
 using MediatR;
 
 namespace HayatiArac.Modules.Advert.Application.Commands.UpdateAdvert;
@@ -11,15 +13,18 @@ public sealed class UpdateAdvertCommandHandler : IRequestHandler<UpdateAdvertCom
     private readonly IAdvertRepository _advertRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public UpdateAdvertCommandHandler(
         IAdvertRepository advertRepository,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _advertRepository = advertRepository;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Result> Handle(UpdateAdvertCommand request, CancellationToken cancellationToken)
@@ -41,10 +46,34 @@ public sealed class UpdateAdvertCommandHandler : IRequestHandler<UpdateAdvertCom
         var price = Money.Create(dto.Price, dto.Currency);
         var location = Location.Create(dto.City, dto.District);
 
-        advert.Update(dto.Title, dto.Description, price, location);
+        advert.Update(
+            dto.Title,
+            dto.Description,
+            price,
+            location,
+            dto.Brand,
+            dto.Model,
+            dto.Year,
+            dto.Mileage,
+            dto.FuelType,
+            dto.TransmissionType,
+            dto.HasHeavyDamageRecord);
 
         await _advertRepository.UpdateAsync(advert, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _publishEndpoint.Publish(new AdvertUpdatedIntegrationEvent
+        {
+            AdvertId = advert.Id,
+            Title = advert.Title,
+            Brand = advert.Brand,
+            Model = advert.Model,
+            Year = advert.Year,
+            Mileage = advert.Mileage,
+            Price = advert.Price.Amount,
+            Currency = advert.Price.Currency.ToString(),
+            City = advert.Location.City
+        }, cancellationToken);
 
         return Result.Success();
     }

@@ -22,5 +22,20 @@ public sealed class UpdateAdvertCommandValidator : AbstractValidator<UpdateAdver
 
         RuleFor(x => x.Request.City)
             .NotEmpty().WithMessage("Şehir bilgisi gereklidir.");
+
+        RuleFor(x => x.Request.Brand)
+            .NotEmpty().WithMessage("Marka gereklidir.")
+            .MaximumLength(100).WithMessage("Marka en fazla 100 karakter olabilir.");
+
+        RuleFor(x => x.Request.Model)
+            .NotEmpty().WithMessage("Model gereklidir.")
+            .MaximumLength(100).WithMessage("Model en fazla 100 karakter olabilir.");
+
+        RuleFor(x => x.Request.Year)
+            .InclusiveBetween(1900, DateTime.UtcNow.Year)
+            .WithMessage($"Yıl 1900 ile {DateTime.UtcNow.Year} arasında olmalıdır.");
+
+        RuleFor(x => x.Request.Mileage)
+            .GreaterThanOrEqualTo(0).WithMessage("Kilometre 0 veya daha büyük olmalıdır.");
     }
 }

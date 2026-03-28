@@ -83,6 +83,14 @@ public class AdvertConfiguration : IEntityTypeConfiguration<Domain.Entities.Adve
         builder.Property(x => x.ExpiresAt).IsRequired();
         builder.Property(x => x.ShowPhoneNumber).IsRequired().HasDefaultValue(false);
 
+        builder.Property(x => x.Brand).IsRequired().HasMaxLength(100);
+        builder.Property(x => x.Model).IsRequired().HasMaxLength(100);
+        builder.Property(x => x.Year).IsRequired();
+        builder.Property(x => x.Mileage).IsRequired();
+        builder.Property(x => x.FuelType).IsRequired().HasConversion<string>();
+        builder.Property(x => x.TransmissionType).IsRequired().HasConversion<string>();
+        builder.Property(x => x.HasHeavyDamageRecord).IsRequired().HasDefaultValue(false);
+
         builder.Property(x => x.CreatedAt).IsRequired();
         builder.Property(x => x.UpdatedAt);
 
@@ -92,6 +100,9 @@ public class AdvertConfiguration : IEntityTypeConfiguration<Domain.Entities.Adve
         builder.HasIndex(x => x.OwnerUserId);
         builder.HasIndex(x => x.CreatedAt);
         builder.HasIndex(x => x.ExpiresAt);
+        builder.HasIndex(x => x.Brand);
+        builder.HasIndex(x => x.Year);
+        builder.HasIndex(x => x.Mileage);
 
         // Partial unique index: bir kullanıcının aynı anda yalnızca 1 aktif ilanı (race condition koruması)
         builder.HasIndex(x => x.OwnerUserId)

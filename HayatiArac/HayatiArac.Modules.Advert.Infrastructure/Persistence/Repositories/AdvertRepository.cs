@@ -35,73 +35,66 @@ public class AdvertRepository : IAdvertRepository
 
     /// <summary>
     /// Search adverts with pagination and eager loading (similar to ProductRepository pattern)
-    /// Returns PagedResultDto with items, total count, and pagination info
-    /// </summary>
     public async Task<PagedResultDto<Domain.Entities.Advert>> SearchAdvertsPaginatedAsync(
-        string? searchTerm,
-        Guid? categoryId,
-        string? city,
-        AdvertStatus? status,
-        decimal? minPrice,
-        decimal? maxPrice,
-        int pageNumber,
-        int pageSize,
+        SearchAdvertsRequestDto dto,
         CancellationToken cancellationToken = default)
     {
-        // Input validation
-        if (pageNumber < 1) pageNumber = 1;
-        if (pageSize < 1) pageSize = 20;
-        if (pageSize > 100) pageSize = 100; // Max 100 items per page
+        var pageNumber = dto.PageNumber < 1 ? 1 : dto.PageNumber;
+        var pageSize = dto.PageSize < 1 ? 20 : dto.PageSize > 100 ? 100 : dto.PageSize;
 
-        // Build query with eager loading
         var query = _context.Adverts
             .Include(a => a.Category)
             .Include(a => a.OwnerInfo)
             .Include(a => a.Images)
             .AsQueryable();
 
-        // Apply filters
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
+        if (!string.IsNullOrWhiteSpace(dto.SearchTerm))
             query = query.Where(a =>
-                a.Title.Contains(searchTerm) ||
-                a.Description.Contains(searchTerm));
-        }
+                a.Title.Contains(dto.SearchTerm) ||
+                a.Description.Contains(dto.SearchTerm));
 
-        if (categoryId.HasValue)
-        {
-            query = query.Where(a => a.CategoryId == categoryId.Value);
-        }
+        if (dto.CategoryId.HasValue)
+            query = query.Where(a => a.CategoryId == dto.CategoryId.Value);
 
-        if (!string.IsNullOrWhiteSpace(city))
-        {
-            query = query.Where(a => a.Location.City.Contains(city));
-        }
+        if (!string.IsNullOrWhiteSpace(dto.City))
+            query = query.Where(a => a.Location.City.Contains(dto.City));
 
-        if (status.HasValue)
-        {
-            query = query.Where(a => a.Status == status.Value);
-        }
+        if (dto.Status.HasValue)
+            query = query.Where(a => a.Status == dto.Status.Value);
         else
-        {
-            // Default: show only active adverts if no status filter
             query = query.Where(a => a.Status == AdvertStatus.Active);
-        }
 
-        if (minPrice.HasValue)
-        {
-            query = query.Where(a => a.Price.Amount >= minPrice.Value);
-        }
+        if (dto.MinPrice.HasValue)
+            query = query.Where(a => a.Price.Amount >= dto.MinPrice.Value);
 
-        if (maxPrice.HasValue)
-        {
-            query = query.Where(a => a.Price.Amount <= maxPrice.Value);
-        }
+        if (dto.MaxPrice.HasValue)
+            query = query.Where(a => a.Price.Amount <= dto.MaxPrice.Value);
 
-        // Get total count (before pagination)
+        if (!string.IsNullOrWhiteSpace(dto.Brand))
+            query = query.Where(a => a.Brand.Contains(dto.Brand));
+
+        if (!string.IsNullOrWhiteSpace(dto.Model))
+            query = query.Where(a => a.Model.Contains(dto.Model));
+
+        if (dto.MinYear.HasValue)
+            query = query.Where(a => a.Year >= dto.MinYear.Value);
+
+        if (dto.MaxYear.HasValue)
+            query = query.Where(a => a.Year <= dto.MaxYear.Value);
+
+        if (dto.MaxMileage.HasValue)
+            query = query.Where(a => a.Mileage <= dto.MaxMileage.Value);
+
+        if (dto.FuelType.HasValue)
+            query = query.Where(a => a.FuelType == dto.FuelType.Value);
+
+        if (dto.TransmissionType.HasValue)
+            query = query.Where(a => a.TransmissionType == dto.TransmissionType.Value);
+
+        if (dto.HasHeavyDamageRecord.HasValue)
+            query = query.Where(a => a.HasHeavyDamageRecord == dto.HasHeavyDamageRecord.Value);
+
         var totalCount = await query.CountAsync(cancellationToken);
-
-        // Calculate pagination
         var skip = (pageNumber - 1) * pageSize;
         var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
 

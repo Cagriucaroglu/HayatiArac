@@ -20,6 +20,15 @@ public class Advert : AggregateRoot
     public DateTime ExpiresAt { get; private set; }
     public bool ShowPhoneNumber { get; private set; }
 
+    // Araç-spesifik alanlar
+    public string Brand { get; private set; } = string.Empty;
+    public string Model { get; private set; } = string.Empty;
+    public int Year { get; private set; }
+    public int Mileage { get; private set; }
+    public FuelType FuelType { get; private set; }
+    public TransmissionType TransmissionType { get; private set; }
+    public bool HasHeavyDamageRecord { get; private set; }
+
     private readonly List<AdvertImage> _images = new();
     public IReadOnlyCollection<AdvertImage> Images => _images.AsReadOnly();
 
@@ -34,6 +43,13 @@ public class Advert : AggregateRoot
         Guid categoryId,
         Guid ownerUserId,
         AdvertOwnerInfo ownerInfo,
+        string brand,
+        string model,
+        int year,
+        int mileage,
+        FuelType fuelType,
+        TransmissionType transmissionType,
+        bool hasHeavyDamageRecord = false,
         bool showPhoneNumber = false)
     {
         var now = DateTime.UtcNow;
@@ -51,19 +67,44 @@ public class Advert : AggregateRoot
             OwnerInfo = ownerInfo,
             ShowPhoneNumber = showPhoneNumber,
             ExpiresAt = now.AddDays(30),
-            CreatedAt = now
+            CreatedAt = now,
+            Brand = brand,
+            Model = model,
+            Year = year,
+            Mileage = mileage,
+            FuelType = fuelType,
+            TransmissionType = transmissionType,
+            HasHeavyDamageRecord = hasHeavyDamageRecord
         };
 
         advert.AddDomainEvent(new AdvertCreatedDomainEvent(advert.Id, title, ownerUserId));
         return advert;
     }
 
-    public void Update(string title, string description, Money price, Location location)
+    public void Update(
+        string title,
+        string description,
+        Money price,
+        Location location,
+        string brand,
+        string model,
+        int year,
+        int mileage,
+        FuelType fuelType,
+        TransmissionType transmissionType,
+        bool hasHeavyDamageRecord)
     {
         Title = title;
         Description = description;
         Price = price;
         Location = location;
+        Brand = brand;
+        Model = model;
+        Year = year;
+        Mileage = mileage;
+        FuelType = fuelType;
+        TransmissionType = transmissionType;
+        HasHeavyDamageRecord = hasHeavyDamageRecord;
         UpdatedAt = DateTime.UtcNow;
     }
 

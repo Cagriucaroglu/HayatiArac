@@ -24,16 +24,7 @@ public sealed class SearchAdvertsQueryHandler
 
         // Single method call - returns paginated result with eager-loaded entities
         // Repository handles: validation, pagination, eager loading (Category, OwnerInfo, Images)
-        var pagedResult = await _advertRepository.SearchAdvertsPaginatedAsync(
-            dto.SearchTerm,
-            dto.CategoryId,
-            dto.City,
-            dto.Status,
-            dto.MinPrice,
-            dto.MaxPrice,
-            dto.PageNumber,
-            dto.PageSize,
-            cancellationToken);
+        var pagedResult = await _advertRepository.SearchAdvertsPaginatedAsync(dto, cancellationToken);
 
         // Map domain entities to DTOs
         var advertDtos = pagedResult.Items.Select(a => new AdvertDto(
@@ -55,7 +46,14 @@ public sealed class SearchAdvertsQueryHandler
             a.Images.Select(img => img.Url).ToList(),
             a.CreatedAt,
             a.ExpiresAt,
-            a.UpdatedAt
+            a.UpdatedAt,
+            a.Brand,
+            a.Model,
+            a.Year,
+            a.Mileage,
+            a.FuelType.ToString(),
+            a.TransmissionType.ToString(),
+            a.HasHeavyDamageRecord
         )).ToList();
 
         // Return mapped result with same pagination info

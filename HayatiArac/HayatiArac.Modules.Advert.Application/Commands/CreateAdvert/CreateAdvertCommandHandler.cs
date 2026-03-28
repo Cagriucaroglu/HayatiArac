@@ -1,7 +1,9 @@
 using HayatiArac.Modules.Advert.Application.Interfaces;
 using HayatiArac.Modules.Advert.Domain.ValueObjects;
+using HayatiArac.Modules.Advert.IntegrationEvents;
 using HayatiArac.SharedKernel.Application;
 using HayatiArac.SharedKernel.Application.Interfaces;
+using MassTransit;
 using MediatR;
 
 namespace HayatiArac.Modules.Advert.Application.Commands.CreateAdvert;
@@ -13,19 +15,22 @@ public sealed class CreateAdvertCommandHandler : IRequestHandler<CreateAdvertCom
     private readonly IAdvertOwnerInfoRepository _ownerInfoRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public CreateAdvertCommandHandler(
         IAdvertRepository advertRepository,
         ICategoryRepository categoryRepository,
         IAdvertOwnerInfoRepository ownerInfoRepository,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _advertRepository = advertRepository;
         _categoryRepository = categoryRepository;
         _ownerInfoRepository = ownerInfoRepository;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Result<Guid>> Handle(CreateAdvertCommand request, CancellationToken cancellationToken)
@@ -76,6 +81,13 @@ public sealed class CreateAdvertCommandHandler : IRequestHandler<CreateAdvertCom
             dto.CategoryId,
             userId.Value,
             ownerInfo,
+            dto.Brand,
+            dto.Model,
+            dto.Year,
+            dto.Mileage,
+            dto.FuelType,
+            dto.TransmissionType,
+            dto.HasHeavyDamageRecord,
             dto.ShowPhoneNumber);
 
         if (dto.ImageUrls is not null)
@@ -92,6 +104,22 @@ public sealed class CreateAdvertCommandHandler : IRequestHandler<CreateAdvertCom
         await _ownerInfoRepository.UpdateAsync(ownerInfo, cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _publishEndpoint.Publish(new AdvertCreatedIntegrationEvent
+        {
+            AdvertId = advert.Id,
+            Title = advert.Title,
+            OwnerUserId = advert.OwnerUserId,
+            Brand = advert.Brand,
+            Model = advert.Model,
+            Year = advert.Year,
+            Mileage = advert.Mileage,
+            Price = advert.Price.Amount,
+            Currency = advert.Price.Currency.ToString(),
+            City = advert.Location.City,
+            Status = advert.Status.ToString(),
+            ImageUrls = advert.Images.Select(i => i.Url).ToList()
+        }, cancellationToken);
 
         return Result.Success(advert.Id);
     }

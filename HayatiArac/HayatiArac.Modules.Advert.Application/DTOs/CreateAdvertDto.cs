@@ -11,6 +11,13 @@ public sealed record CreateAdvertDto(
     string District,
     AdvertCondition Condition,
     Guid CategoryId,
+    string Brand,
+    string Model,
+    int Year,
+    int Mileage,
+    FuelType FuelType,
+    TransmissionType TransmissionType,
+    bool HasHeavyDamageRecord,
     bool ShowPhoneNumber,
     List<string>? ImageUrls
 );

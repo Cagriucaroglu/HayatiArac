@@ -19,5 +19,12 @@ public sealed record AdvertDto(
     List<string> ImageUrls,
     DateTime CreatedAt,
     DateTime ExpiresAt,
-    DateTime? UpdatedAt
+    DateTime? UpdatedAt,
+    string Brand,
+    string Model,
+    int Year,
+    int Mileage,
+    string FuelType,
+    string TransmissionType,
+    bool HasHeavyDamageRecord
 );

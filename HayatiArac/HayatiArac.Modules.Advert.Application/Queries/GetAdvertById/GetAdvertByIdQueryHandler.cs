@@ -40,7 +40,14 @@ public sealed class GetAdvertByIdQueryHandler : IRequestHandler<GetAdvertByIdQue
             advert.Images.Select(img => img.Url).ToList(),
             advert.CreatedAt,
             advert.ExpiresAt,
-            advert.UpdatedAt);
+            advert.UpdatedAt,
+            advert.Brand,
+            advert.Model,
+            advert.Year,
+            advert.Mileage,
+            advert.FuelType.ToString(),
+            advert.TransmissionType.ToString(),
+            advert.HasHeavyDamageRecord);
 
         return Result.Success(dto);
     }

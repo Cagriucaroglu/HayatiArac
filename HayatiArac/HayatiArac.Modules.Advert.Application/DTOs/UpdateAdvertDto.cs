@@ -9,5 +9,12 @@ public sealed record UpdateAdvertDto(
     decimal Price,
     CurrencyCode Currency,
     string City,
-    string District
+    string District,
+    string Brand,
+    string Model,
+    int Year,
+    int Mileage,
+    FuelType FuelType,
+    TransmissionType TransmissionType,
+    bool HasHeavyDamageRecord
 );
