@@ -1,6 +1,6 @@
 using HayatiArac.Api;
 using HayatiArac.Modules.Advert.Infrastructure;
-using HayatiArac.SharedKernel.Infrastructure;
+using HayatiArac.Modules.Favorite.Infrastructure;
 using HayatiArac.Modules.User.Application.Interfaces;
 using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
@@ -73,7 +73,8 @@ builder.Services.AddSharedKernel();
 var modules = new IModuleRegistration[]
 {
     new UserModuleRegistration(),
-    new AdvertModuleRegistration()
+    new AdvertModuleRegistration(),
+    new FavoriteModuleRegistration()
 };
 
 foreach (var module in modules)
@@ -89,6 +90,8 @@ builder.Services.AddMassTransit(x =>
 
     // Register consumers from Advert module
     x.AddConsumers(typeof(AdvertModuleRegistration).Assembly);
+
+    x.AddConsumers(typeof(FavoriteModuleRegistration).Assembly);
 
     x.UsingInMemory((context, cfg) =>
     {

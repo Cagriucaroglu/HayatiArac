@@ -2,16 +2,16 @@ using HayatiArac.SharedKernel.Domain;
 
 namespace HayatiArac.Modules.Favorite.Domain.Entities;
 
-public class Favorite : BaseEntity
+public class SavedAdvert : BaseEntity
 {
     public Guid UserId { get; private set; }
     public Guid AdvertId { get; private set; }
 
-    private Favorite() { }
+    private SavedAdvert() { }
 
-    public static Favorite Create(Guid userId, Guid advertId)
+    public static SavedAdvert Create(Guid userId, Guid advertId)
     {
-        return new Favorite
+        return new SavedAdvert
         {
             UserId = userId,
             AdvertId = advertId,

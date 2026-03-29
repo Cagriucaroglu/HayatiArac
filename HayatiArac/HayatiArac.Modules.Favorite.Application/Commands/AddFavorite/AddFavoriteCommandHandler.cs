@@ -11,13 +11,13 @@ public sealed class AddFavoriteCommandHandler : IRequestHandler<AddFavoriteComma
     private readonly IFavoriteRepository _favoriteRepository;
     private readonly IAdvertSnapshotRepository _snapshotRepository;
     private readonly ICurrentUserService _currentUserService;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IFavoriteUnitOfWork _unitOfWork;
 
     public AddFavoriteCommandHandler(
         IFavoriteRepository favoriteRepository,
         IAdvertSnapshotRepository snapshotRepository,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IFavoriteUnitOfWork unitOfWork)
     {
         _favoriteRepository = favoriteRepository;
         _snapshotRepository = snapshotRepository;
@@ -39,8 +39,8 @@ public sealed class AddFavoriteCommandHandler : IRequestHandler<AddFavoriteComma
         if (existing is not null)
             return Result.Failure<Unit>(Error.Conflict("Favorite.AlreadyExists", "Bu ilan zaten favorilerinizde."));
 
-        var favorite = Favorite.Create(userId.Value, request.AdvertId);
-        await _favoriteRepository.AddAsync(favorite, cancellationToken);
+        var savedAdvert = SavedAdvert.Create(userId.Value, request.AdvertId);
+        await _favoriteRepository.AddAsync(savedAdvert, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return Result.Success();

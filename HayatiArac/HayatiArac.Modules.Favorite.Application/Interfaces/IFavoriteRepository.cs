@@ -4,8 +4,8 @@ namespace HayatiArac.Modules.Favorite.Application.Interfaces;
 
 public interface IFavoriteRepository
 {
-    Task<Favorite?> GetAsync(Guid userId, Guid advertId, CancellationToken ct = default);
-    Task<List<Favorite>> GetByUserAsync(Guid userId, CancellationToken ct = default);
-    Task AddAsync(Favorite favorite, CancellationToken ct = default);
-    Task RemoveAsync(Favorite favorite, CancellationToken ct = default);
+    Task<SavedAdvert?> GetAsync(Guid userId, Guid advertId, CancellationToken ct = default);
+    Task<List<SavedAdvert>> GetByUserAsync(Guid userId, CancellationToken ct = default);
+    Task AddAsync(SavedAdvert savedAdvert, CancellationToken ct = default);
+    Task RemoveAsync(SavedAdvert savedAdvert, CancellationToken ct = default);
 }
