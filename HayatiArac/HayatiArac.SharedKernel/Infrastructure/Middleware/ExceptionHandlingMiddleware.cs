@@ -13,7 +13,7 @@ public sealed class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Ex
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
     };
 
-    public async Task TaskAsync(HttpContext httpContext)
+    public async Task InvokeAsync(HttpContext httpContext)
     {
         try
         {
