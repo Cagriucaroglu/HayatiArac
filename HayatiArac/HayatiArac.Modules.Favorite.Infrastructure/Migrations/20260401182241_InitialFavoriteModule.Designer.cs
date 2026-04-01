@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HayatiArac.Modules.Favorite.Infrastructure.Migrations
 {
     [DbContext(typeof(FavoriteDbContext))]
-    [Migration("20260329172659_InitialFavoriteModule")]
+    [Migration("20260401182241_InitialFavoriteModule")]
     partial class InitialFavoriteModule
     {
         /// <inheritdoc />
