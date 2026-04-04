@@ -1,9 +1,8 @@
 using HayatiArac.Modules.Advert.Infrastructure.Persistence;
 using HayatiArac.Modules.Favorite.Infrastructure.Persistence;
+using HayatiArac.Modules.Messaging.Infrastructure.Persistence;
 using HayatiArac.Modules.User.Infrastructure.Persistence;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace HayatiArac.Api;
 
@@ -17,6 +16,7 @@ public static class DbInitializer
         await MigrateContextAsync<UserDbContext>(sp, logger);
         await MigrateContextAsync<AdvertDbContext>(sp, logger);
         await MigrateContextAsync<FavoriteDbContext>(sp, logger);
+        await MigrateContextAsync<MessagingDbContext>(sp, logger);
     }
     private static async Task MigrateContextAsync<TContext>(IServiceProvider sp, ILogger logger)
         where TContext : DbContext

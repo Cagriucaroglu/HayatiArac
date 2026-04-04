@@ -1,5 +1,6 @@
 using HayatiArac.Modules.Messaging.Application.DTOs;
 using HayatiArac.Modules.Messaging.Application.Interfaces;
+using HayatiArac.Modules.Messaging.Domain.Entities;
 using HayatiArac.SharedKernel.Application;
 using HayatiArac.SharedKernel.Application.Interfaces;
 using MediatR;
@@ -28,11 +29,11 @@ public sealed class GetMyConversationsQueryHandler : IRequestHandler<GetMyConver
         if (!userId.HasValue)
             return Result.Failure<List<ConversationDto>>(Error.Unauthorized("User.Unauthorized", "Kullanıcı doğrulanamadı."));
 
-        var conversations = await _conversationRepository.GetByUserIdAsync(userId.Value, cancellationToken);
+        List<Conversation> conversations = await _conversationRepository.GetByUserIdAsync(userId.Value, cancellationToken);
 
-        var result = new List<ConversationDto>();
+        List<ConversationDto> result = [];
         foreach (var conv in conversations)
-        {
+        { 
             var messages = await _messageRepository.GetByConversationIdAsync(conv.Id, cancellationToken);
             var lastMessage = messages.MaxBy(m => m.CreatedAt);
             var unreadCount = messages.Count(m => m.SenderId != userId.Value && !m.IsRead);

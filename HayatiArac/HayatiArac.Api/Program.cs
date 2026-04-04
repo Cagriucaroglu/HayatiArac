@@ -1,6 +1,7 @@
 using HayatiArac.Api;
 using HayatiArac.Modules.Advert.Infrastructure;
 using HayatiArac.Modules.Favorite.Infrastructure;
+using HayatiArac.Modules.Messaging.Infrastructure;
 using HayatiArac.Modules.User.Application.Interfaces;
 using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
@@ -60,7 +61,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
                 if (await blacklistService.IsTokenRevokedAsync(jti))
                     context.Fail("Token has been revoked");
-            }
+            },
+            OnMessageReceived = context =>
+            {
+                string? accessToken = context.Request.Query["access_token"];
+                PathString path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs/messaging"))
+                    context.Token = accessToken;
+                return Task.CompletedTask;
+            }   
         };
     });
 
@@ -74,7 +84,8 @@ var modules = new IModuleRegistration[]
 {
     new UserModuleRegistration(),
     new AdvertModuleRegistration(),
-    new FavoriteModuleRegistration()
+    new FavoriteModuleRegistration(),
+    new MessagingModuleRegistration()
 };
 
 foreach (var module in modules)
@@ -92,6 +103,9 @@ builder.Services.AddMassTransit(x =>
     x.AddConsumers(typeof(AdvertModuleRegistration).Assembly);
 
     x.AddConsumers(typeof(FavoriteModuleRegistration).Assembly);
+
+    // Register consumers from Messaging module
+    x.AddConsumers(typeof(MessagingModuleRegistration).Assembly);
 
     x.UsingInMemory((context, cfg) =>
     {
