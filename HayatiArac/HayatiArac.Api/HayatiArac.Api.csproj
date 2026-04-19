@@ -28,6 +28,7 @@
     <ProjectReference Include="..\HayatiArac.Modules.Advert.IntegrationEvents\HayatiArac.Modules.Advert.IntegrationEvents.csproj" />
     <ProjectReference Include="..\HayatiArac.Modules.Favorite.Infrastructure\HayatiArac.Modules.Favorite.Infrastructure.csproj" />
     <ProjectReference Include="..\HayatiArac.Modules.Messaging.Infrastructure\HayatiArac.Modules.Messaging.Infrastructure.csproj" />
+    <ProjectReference Include="..\HayatiArac.Modules.Notification.Infrastructure\HayatiArac.Modules.Notification.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

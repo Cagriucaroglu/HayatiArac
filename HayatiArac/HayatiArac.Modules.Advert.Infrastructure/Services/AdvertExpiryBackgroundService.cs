@@ -1,5 +1,7 @@
 using HayatiArac.Modules.Advert.Application.Interfaces;
+using HayatiArac.Modules.Advert.IntegrationEvents;
 using HayatiArac.SharedKernel.Application.Interfaces;
+using MassTransit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -26,9 +28,9 @@ public sealed class AdvertExpiryBackgroundService : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
-            var now = DateTime.UtcNow;
-            var nextMidnight = now.Date.AddDays(1);
-            var delay = nextMidnight - now;
+            DateTime now = DateTime.UtcNow;
+            DateTime nextMidnight = now.Date.AddDays(1);
+            TimeSpan delay = nextMidnight - now;
 
             _logger.LogInformation("Advert expiry servisi bir sonraki çalışma için {Delay} bekliyor.", delay);
 
@@ -43,16 +45,16 @@ public sealed class AdvertExpiryBackgroundService : BackgroundService
     {
         _logger.LogInformation("Advert expiry işlemi başlatıldı.");
 
-        var totalExpired = 0;
-        var offset = 0;
+        int totalExpired = 0;
+        int offset = 0;
 
         while (true)
         {
             List<Domain.Entities.Advert> batch;
 
-            using (var scope = _serviceProvider.CreateScope())
+            using (IServiceScope scope = _serviceProvider.CreateScope())
             {
-                var repository = scope.ServiceProvider.GetRequiredService<IAdvertRepository>();
+                IAdvertRepository repository = scope.ServiceProvider.GetRequiredService<IAdvertRepository>();
                 batch = await repository.GetExpiredAdvertsBatchAsync(BatchSize, offset, ct);
             }
 
@@ -65,12 +67,20 @@ public sealed class AdvertExpiryBackgroundService : BackgroundService
                 async (advert, token) =>
                 {
                     using var scope = _serviceProvider.CreateScope();
-                    var repository = scope.ServiceProvider.GetRequiredService<IAdvertRepository>();
-                    var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    IAdvertRepository repository = scope.ServiceProvider.GetRequiredService<IAdvertRepository>();
+                    IUnitOfWork unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+                    IPublishEndpoint publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
 
                     advert.Expire();
                     await repository.UpdateAsync(advert, token);
                     await unitOfWork.SaveChangesAsync(token);
+
+                    await publishEndpoint.Publish(new AdvertExpiredIntegrationEvent
+                    {
+                        AdvertId = advert.Id,
+                        Title = advert.Title,
+                        OwnerUserId = advert.OwnerUserId
+                    }, token);
                 });
 
             totalExpired += batch.Count;

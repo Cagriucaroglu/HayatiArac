@@ -1,6 +1,7 @@
 using HayatiArac.Modules.Advert.Infrastructure.Persistence;
 using HayatiArac.Modules.Favorite.Infrastructure.Persistence;
 using HayatiArac.Modules.Messaging.Infrastructure.Persistence;
+using HayatiArac.Modules.Notification.Infrastructure.Persistence;
 using HayatiArac.Modules.User.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,7 @@ public static class DbInitializer
         await MigrateContextAsync<AdvertDbContext>(sp, logger);
         await MigrateContextAsync<FavoriteDbContext>(sp, logger);
         await MigrateContextAsync<MessagingDbContext>(sp, logger);
+        await MigrateContextAsync<NotificationDbContext>(sp, logger);
     }
     private static async Task MigrateContextAsync<TContext>(IServiceProvider sp, ILogger logger)
         where TContext : DbContext

@@ -2,6 +2,7 @@ using HayatiArac.Api;
 using HayatiArac.Modules.Advert.Infrastructure;
 using HayatiArac.Modules.Favorite.Infrastructure;
 using HayatiArac.Modules.Messaging.Infrastructure;
+using HayatiArac.Modules.Notification.Infrastructure;
 using HayatiArac.Modules.User.Application.Interfaces;
 using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
@@ -67,7 +68,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 string? accessToken = context.Request.Query["access_token"];
                 PathString path = context.HttpContext.Request.Path;
                 if (!string.IsNullOrEmpty(accessToken) &&
-                path.StartsWithSegments("/hubs/messaging"))
+                    (path.StartsWithSegments("/hubs/messaging") ||
+                     path.StartsWithSegments("/hubs/notifications")))
                     context.Token = accessToken;
                 return Task.CompletedTask;
             }   
@@ -85,7 +87,8 @@ var modules = new IModuleRegistration[]
     new UserModuleRegistration(),
     new AdvertModuleRegistration(),
     new FavoriteModuleRegistration(),
-    new MessagingModuleRegistration()
+    new MessagingModuleRegistration(),
+    new NotificationModuleRegistration()
 };
 
 foreach (var module in modules)
@@ -106,6 +109,9 @@ builder.Services.AddMassTransit(x =>
 
     // Register consumers from Messaging module
     x.AddConsumers(typeof(MessagingModuleRegistration).Assembly);
+
+    // Register consumers from Notification module
+    x.AddConsumers(typeof(NotificationModuleRegistration).Assembly);
 
     x.UsingInMemory((context, cfg) =>
     {
