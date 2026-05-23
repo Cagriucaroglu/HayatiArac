@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2" />
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageReference Include="NSubstitute" Version="5.3.0" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HayatiArac.Modules.Advert.Application\HayatiArac.Modules.Advert.Application.csproj" />
+    <ProjectReference Include="..\HayatiArac.Modules.Advert.Domain\HayatiArac.Modules.Advert.Domain.csproj" />
+    <ProjectReference Include="..\HayatiArac.Modules.Favorite.Application\HayatiArac.Modules.Favorite.Application.csproj" />
+    <ProjectReference Include="..\HayatiArac.Modules.Favorite.Domain\HayatiArac.Modules.Favorite.Domain.csproj" />
+    <ProjectReference Include="..\HayatiArac.SharedKernel\HayatiArac.SharedKernel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>
