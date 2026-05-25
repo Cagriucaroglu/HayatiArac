@@ -1,7 +1,9 @@
 using HayatiArac.Modules.Advert.Infrastructure.Persistence;
 using HayatiArac.Modules.Favorite.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.MsSql;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace HayatiArac.IntegrationTests.Infrastructure;
 
@@ -15,6 +17,7 @@ public class DatabaseFixture : IAsyncLifetime
         .WithImage("mcr.microsoft.com/mssql/server:2022-latest")
         .Build();
 
+    public string ConnectionString { get; private set; } = null!;
     public AdvertDbContext AdvertContext { get; private set; } = null!;
     public FavoriteDbContext FavoriteContext { get; private set; } = null!;
 
@@ -23,13 +26,13 @@ public class DatabaseFixture : IAsyncLifetime
         await _container.StartAsync();
 
         var connectionString = _container.GetConnectionString();
+        ConnectionString = connectionString;
 
         AdvertContext = new AdvertDbContext(
             new DbContextOptionsBuilder<AdvertDbContext>()
                 .UseSqlServer(connectionString, sql =>
                     sql.MigrationsHistoryTable("__EFMigrationsHistory", AdvertDbContext.Schema))
                 .Options);
-
         FavoriteContext = new FavoriteDbContext(
             new DbContextOptionsBuilder<FavoriteDbContext>()
                 .UseSqlServer(connectionString, sql =>

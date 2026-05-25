@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HayatiArac.Modules.Advert.Infrastructure.Migrations
 {
     [DbContext(typeof(AdvertDbContext))]
-    [Migration("20260328152349_AddVehicleFields")]
-    partial class AddVehicleFields
+    [Migration("20260525163624_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

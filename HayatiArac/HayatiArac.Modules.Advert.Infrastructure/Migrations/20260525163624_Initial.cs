@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace HayatiArac.Modules.Advert.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialAdvertModule : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,6 +24,8 @@ namespace HayatiArac.Modules.Advert.Infrastructure.Migrations
                     DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastAdvertPublishedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -76,6 +78,15 @@ namespace HayatiArac.Modules.Advert.Infrastructure.Migrations
                     Condition = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     OwnerUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ExpiresAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ShowPhoneNumber = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    Brand = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Model = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Mileage = table.Column<int>(type: "int", nullable: false),
+                    FuelType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TransmissionType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HasHeavyDamageRecord = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     Version = table.Column<int>(type: "int", nullable: false)
@@ -143,6 +154,12 @@ namespace HayatiArac.Modules.Advert.Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_Adverts_Brand",
+                schema: "adverts",
+                table: "Adverts",
+                column: "Brand");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Adverts_CategoryId",
                 schema: "adverts",
                 table: "Adverts",
@@ -155,16 +172,36 @@ namespace HayatiArac.Modules.Advert.Infrastructure.Migrations
                 column: "CreatedAt");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Adverts_OwnerUserId",
+                name: "IX_Adverts_ExpiresAt",
                 schema: "adverts",
                 table: "Adverts",
-                column: "OwnerUserId");
+                column: "ExpiresAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Adverts_Mileage",
+                schema: "adverts",
+                table: "Adverts",
+                column: "Mileage");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Adverts_OwnerUserId_Active",
+                schema: "adverts",
+                table: "Adverts",
+                column: "OwnerUserId",
+                unique: true,
+                filter: "[Status] = 'Active'");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Adverts_Status",
                 schema: "adverts",
                 table: "Adverts",
                 column: "Status");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Adverts_Year",
+                schema: "adverts",
+                table: "Adverts",
+                column: "Year");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Categories_DisplayOrder",
