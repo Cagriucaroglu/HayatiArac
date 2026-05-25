@@ -15,12 +15,12 @@ namespace HayatiArac.IntegrationTests.Advert;
 /// IClassFixture sayesinde tüm testler için tek bir container başlar,
 /// her test sınıfı kendi verisini temizler.
 /// </summary>
-public class AdvertRepositoryTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
+[Collection("Database")]
+public class AdvertRepositoryTests : IAsyncLifetime
 {
     private readonly AdvertDbContext _context;
     private readonly AdvertRepository _repository;
     private Category _category = null!;
-    private AdvertOwnerInfo _ownerInfo = null!;
 
     public AdvertRepositoryTests(DatabaseFixture fixture)
     {
@@ -30,7 +30,6 @@ public class AdvertRepositoryTests : IClassFixture<DatabaseFixture>, IAsyncLifet
 
     public async Task InitializeAsync()
     {
-        // Her test öncesi tabloları temizle
         _context.ChangeTracker.Clear();
         await _context.Database.ExecuteSqlRawAsync(
             $"DELETE FROM [{AdvertDbContext.Schema}].[AdvertImages]; " +
@@ -38,12 +37,8 @@ public class AdvertRepositoryTests : IClassFixture<DatabaseFixture>, IAsyncLifet
             $"DELETE FROM [{AdvertDbContext.Schema}].[AdvertOwnerInfos]; " +
             $"DELETE FROM [{AdvertDbContext.Schema}].[Categories];");
 
-        // Paylaşılan seed verisi
         _category = Category.Create("Binek Araç", "binek-arac");
-        _ownerInfo = AdvertOwnerInfo.Create(Guid.NewGuid(), "Test Kullanıcı", "test@test.com", "İstanbul");
-
         await _context.Categories.AddAsync(_category);
-        await _context.AdvertOwnerInfos.AddAsync(_ownerInfo);
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
     }
@@ -175,8 +170,12 @@ public class AdvertRepositoryTests : IClassFixture<DatabaseFixture>, IAsyncLifet
         decimal price = 150_000m,
         int year = 2020,
         FuelType fuelType = FuelType.Gasoline,
-        AdvertStatus status = AdvertStatus.Active)
+        AdvertStatus status = AdvertStatus.Active,
+        string displayName = "Test Kullanıcı",
+        string email = "test@test.com",
+        string location = "İstanbul")
     {
+        AdvertOwnerInfo advertOwnerInfo = createAdvertOwner(displayName, email, location);
         var advert = AdvertEntity.Create(
             title: title,
             description: "Test açıklama",
@@ -184,8 +183,8 @@ public class AdvertRepositoryTests : IClassFixture<DatabaseFixture>, IAsyncLifet
             location: Location.Create(city, "Merkez"),
             condition: AdvertCondition.Used,
             categoryId: _category.Id,
-            ownerUserId: _ownerInfo.UserId,
-            ownerInfo: _ownerInfo,
+            ownerUserId: advertOwnerInfo.UserId,
+            ownerInfo: advertOwnerInfo,
             brand: brand,
             model: "Corolla",
             year: year,
@@ -205,4 +204,7 @@ public class AdvertRepositoryTests : IClassFixture<DatabaseFixture>, IAsyncLifet
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
     }
+
+    private static AdvertOwnerInfo createAdvertOwner(string displayName, string email, string location) =>
+        AdvertOwnerInfo.Create(Guid.NewGuid(), displayName, email, location);
 }

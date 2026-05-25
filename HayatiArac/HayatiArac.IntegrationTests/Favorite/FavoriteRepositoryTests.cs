@@ -8,7 +8,8 @@ using System.Drawing;
 
 namespace HayatiArac.IntegrationTests.Favorite;
 
-public class FavoriteRepositoryTests : IClassFixture<DatabaseFixture> , IAsyncLifetime
+[Collection("Database")]
+public class FavoriteRepositoryTests : IAsyncLifetime
 {
     private readonly FavoriteDbContext  favoriteDbContext;
     private readonly FavoriteRepository repository;

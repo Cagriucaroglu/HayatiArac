@@ -26,7 +26,8 @@ namespace HayatiArac.IntegrationTests.Events;
 /// Favorite modülünde AdvertSnapshot oluşturulduğunu doğrular.
 /// Hem gerçek DB (TestContainers) hem MassTransit Test Harness kullanır.
 /// </summary>
-public class AdvertCreatedFlowTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
+[Collection("Database")]
+public class AdvertCreatedFlowTests : IAsyncLifetime
 {
     private readonly DatabaseFixture _fixture;
     private ServiceProvider _provider = null!;
