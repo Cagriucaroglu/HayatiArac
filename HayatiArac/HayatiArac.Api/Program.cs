@@ -8,6 +8,7 @@ using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -78,6 +79,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+string? redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+
+builder.Services.AddHealthChecks()
+    .AddSqlServer(connectionString!, name: "sql-server", tags: ["ready"])
+    .AddRedis(redisConnectionString!, name: "redis", tags: ["ready"]);
+
 // SharedKernel — ICurrentUserService ve cross-cutting servisler
 builder.Services.AddSharedKernel();
 
@@ -147,5 +155,15 @@ foreach (var module in modules)
 
 // Map endpoints
 app.MapEndpoints();
+
+app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+});
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    Predicate = _ => false
+});
 
 app.Run();
