@@ -161,4 +161,10 @@ public class AdvertRepository : IAdvertRepository
         _context.Adverts.Remove(entity);
         return Task.CompletedTask;
     }
+
+    public async Task<int> DeleteOldExpiredAdvertsAsync(DateTime cutOffDate, CancellationToken cancellationToken = default)
+    {
+        return await _context.Adverts.Where(a => a.Status == AdvertStatus.Expired && a.ExpiresAt <= cutOffDate)
+            .ExecuteDeleteAsync(cancellationToken);
+    }
 }

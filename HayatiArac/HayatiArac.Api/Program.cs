@@ -1,5 +1,6 @@
 using HayatiArac.Api;
 using HayatiArac.Modules.Advert.Infrastructure;
+using HayatiArac.Modules.Advert.Infrastructure.Services;
 using HayatiArac.Modules.Favorite.Infrastructure;
 using HayatiArac.Modules.Messaging.Infrastructure;
 using HayatiArac.Modules.Notification.Infrastructure;
@@ -7,13 +8,26 @@ using HayatiArac.Modules.User.Application.Interfaces;
 using HayatiArac.Modules.User.Infrastructure;
 using HayatiArac.SharedKernel.Infrastructure;
 using MassTransit;
+using Serilog;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();   
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, config) =>
+{
+    config.ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services);
+});
 
 // Add services to the container.
 builder.Services.AddEndpointsApiExplorer();
@@ -86,6 +100,14 @@ builder.Services.AddHealthChecks()
     .AddSqlServer(connectionString!, name: "sql-server", tags: ["ready"])
     .AddRedis(redisConnectionString!, name: "redis", tags: ["ready"]);
 
+builder.Services.AddHangfire(config =>
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+        .UseSimpleAssemblyNameTypeSerializer()
+        .UseRecommendedSerializerSettings()
+        .UseSqlServerStorage(connectionString));
+
+builder.Services.AddHangfireServer();
+
 // SharedKernel — ICurrentUserService ve cross-cutting servisler
 builder.Services.AddSharedKernel();
 
@@ -121,8 +143,13 @@ builder.Services.AddMassTransit(x =>
     // Register consumers from Notification module
     x.AddConsumers(typeof(NotificationModuleRegistration).Assembly);
 
-    x.UsingInMemory((context, cfg) =>
+    x.UsingRabbitMq((context, cfg) =>
     {
+        cfg.Host(builder.Configuration["RabbitMQ:Host"], h =>
+        {
+            h.Username(builder.Configuration["RabbitMQ:Username"]!);
+            h.Password(builder.Configuration["RabbitMQ:Password"]!);
+        });
         cfg.ConfigureEndpoints(context);
     });
 });
@@ -141,6 +168,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandling();
+
+app.UseSerilogRequestLogging();
+
+app.UseHangfireDashboard("/hangfire");
 
 app.UseHttpsRedirection();
 
@@ -165,5 +196,11 @@ app.MapHealthChecks("/health/live", new HealthCheckOptions
 {
     Predicate = _ => false
 });
+
+var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+recurringJobManager.AddOrUpdate<PurgeExpiredAdvertsJob>(
+    "purge-expired-adverts",
+    job => job.ExecuteAsync(),
+    Cron.Weekly(DayOfWeek.Sunday, 2));
 
 app.Run();

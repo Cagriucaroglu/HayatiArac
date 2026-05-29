@@ -33,6 +33,7 @@ public static class DependencyInjection
 
         // Services
         services.AddHostedService<AdvertExpiryBackgroundService>();
+        services.AddScoped<PurgeExpiredAdvertsJob>();
 
         return services;
     }

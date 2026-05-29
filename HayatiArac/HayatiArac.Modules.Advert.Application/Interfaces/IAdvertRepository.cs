@@ -20,4 +20,7 @@ public interface IAdvertRepository : IRepository<Domain.Entities.Advert>
 
     /// <summary>Süresi dolmuş ve henüz Expired statüsüne geçirilmemiş ilanları batch olarak döner.</summary>
     Task<List<Domain.Entities.Advert>> GetExpiredAdvertsBatchAsync(int batchSize, int offset, CancellationToken cancellationToken = default);
+
+    Task<int> DeleteOldExpiredAdvertsAsync(DateTime cutOffDate, CancellationToken cancellationToken = default);
 }
+ 
