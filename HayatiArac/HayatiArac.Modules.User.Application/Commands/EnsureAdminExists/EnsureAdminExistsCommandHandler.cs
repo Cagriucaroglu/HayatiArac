@@ -38,19 +38,8 @@ public sealed class EnsureAdminExistsCommandHandler : IRequestHandler<EnsureAdmi
 
         // Create admin user
         var passwordHash = _passwordHasher.HashPassword(adminPassword);
-        
-        var admin = new ApplicationUser
-        {
-            UserName = adminEmail,
-            Email = adminEmail,
-            FirstName = "Admin",
-            LastName = "User",
-            PhoneNumber = "5551234567",
-            PasswordHash = passwordHash,
-            Role = UserRole.Admin,
-            IsEmailVerified = true,
-            IsActive = true,
-        };
+
+        ApplicationUser admin = ApplicationUser.CreateAdmin(adminEmail, "Admin", "User", passwordHash);
 
         await _userRepository.AddAsync(admin, cancellationToken);
 

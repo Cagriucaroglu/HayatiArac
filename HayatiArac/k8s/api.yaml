@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hayatiarac-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: hayatiarac-api
+  template:
+    metadata:
+      labels:
+        app: hayatiarac-api
+    spec:
+      containers:
+        - name: api
+          image: hayatiarac-api:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: hayatiarac-config
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 15
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hayatiarac-api-service
+spec:
+  selector:
+    app: hayatiarac-api
+  ports:
+    - port: 8080
+      targetPort: 8080

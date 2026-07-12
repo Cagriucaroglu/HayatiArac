@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: hayatiarac-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_HTTP_PORTS: "8080"
+  ConnectionStrings__DefaultConnection: "Server=sqlserver-service,1433;Database=HayatiAracDb;User Id=sa;Password=Test12345;TrustServerCertificate=True;MultipleActiveResultSets=true"
+  ConnectionStrings__Redis: "redis-service:6379"
+  RabbitMQ__Host: "rabbitmq://rabbitmq-service"
+  RabbitMQ__Username: "guest"
+  RabbitMQ__Password: "guest"

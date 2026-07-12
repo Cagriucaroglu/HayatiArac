@@ -83,7 +83,7 @@ public class ApplicationUser : BaseEntity
         };
     }
 
-    // Admin/sistem oluşturma için — doğrulama atlanır
+    // Sistem oluşturma için — doğrulama atlanır
     public static ApplicationUser Create(string email, string firstName, string lastName, string passwordHash)
     {
         return new ApplicationUser
@@ -94,6 +94,22 @@ public class ApplicationUser : BaseEntity
             LastName = lastName,
             PasswordHash = passwordHash,
             Role = UserRole.User,
+            IsActive = true,
+            IsEmailVerified = true,
+            IsPhoneVerified = true
+        };
+    }
+
+    public static ApplicationUser CreateAdmin(string email, string firstName, string lastName, string passwordHash)
+    {
+        return new ApplicationUser
+        {
+            Email = email,
+            UserName = email,
+            FirstName = firstName,
+            LastName = lastName,
+            PasswordHash = passwordHash,
+            Role = UserRole.Admin,
             IsActive = true,
             IsEmailVerified = true,
             IsPhoneVerified = true

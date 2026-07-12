@@ -1,0 +1,2 @@
+error: unknown flag: --clusterrole
+See 'kubectl create token --help' for usage.
