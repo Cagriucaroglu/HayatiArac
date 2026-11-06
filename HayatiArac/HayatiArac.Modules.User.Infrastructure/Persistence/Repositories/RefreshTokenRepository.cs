@@ -41,8 +41,10 @@ public class RefreshTokenRepository : IRefreshTokenRepository
 
     public async Task RevokeAllUserTokensAsync(Guid userId, CancellationToken cancellationToken = default)
     {
+        // IsActive hesaplanan bir özellik olduğu için SQL'e çevrilemez; koşul açıkça yazılır.
+        var now = DateTime.UtcNow;
         var tokens = await _context.RefreshTokens
-            .Where(rt => rt.UserId == userId && rt.IsActive)
+            .Where(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiresAt > now)
             .ToListAsync(cancellationToken);
 
         foreach (var token in tokens)

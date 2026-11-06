@@ -22,7 +22,7 @@ internal sealed class AddFavoriteEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("AddFavorite")
         .WithSummary("İlanı favorilere ekle")

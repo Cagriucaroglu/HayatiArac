@@ -7,6 +7,12 @@ namespace HayatiArac.Modules.User.Application.Commands.Login;
 
 public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<LoginResponse>>
 {
+    private static readonly Error InvalidCredentials =
+        Error.Validation("Auth.InvalidCredentials", "E-posta/kullanıcı adı veya şifre hatalı.");
+
+    // Var olmayan kullanıcıda karşılaştırılacak, rastgele bir şifrenin hash'i (ilk ihtiyaçta bir kez üretilir).
+    private static string? _dummyPasswordHash;
+
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly IJwtTokenService _jwtTokenService;
@@ -33,20 +39,15 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<L
 
         if (user == null)
         {
-            return Result.Failure<LoginResponse>(Error.NotFound("Auth.InvalidCredentials", "Invalid email/username or password"));
+            // Zamanlama farkından hesap varlığı anlaşılmasın diye yine de bir hash doğrulaması yapılır.
+            _dummyPasswordHash ??= _passwordHasher.HashPassword(Guid.NewGuid().ToString());
+            _passwordHasher.VerifyPassword(request.Password, _dummyPasswordHash);
+            return Result.Failure<LoginResponse>(InvalidCredentials);
         }
 
-        // Check if account is locked
+        // Kilitliyken şifre denenmez (brute-force'u durdurur).
         if (user.IsLockedOut())
             return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountLocked", "Hesabiniz kilitlendi. Lutfen daha sonra tekrar deneyin."));
-
-        // E-posta ve telefon doğrulaması tamamlanmamışsa engelle
-        if (!user.IsFullyVerified)
-            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountNotVerified", "Hesabiniz dogrulanmamis. Lutfen e-posta ve telefon dogrulamasini tamamlayiniz."));
-
-        // Check if account is active
-        if (!user.IsActive)
-            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountInactive", "Hesabiniz aktif degil."));
 
         // Verify password
         var isPasswordValid = _passwordHasher.VerifyPassword(request.Password, user.PasswordHash);
@@ -65,8 +66,15 @@ public sealed class LoginCommandHandler : IRequestHandler<LoginCommand, Result<L
             }
 
             await _userRepository.UpdateAsync(user, cancellationToken);
-            return Result.Failure<LoginResponse>(Error.NotFound("Auth.InvalidCredentials", "Invalid email/username or password"));
+            return Result.Failure<LoginResponse>(InvalidCredentials);
         }
+
+        // Hesap durumu bilgisi sadece şifre doğruysa verilir; aksi halde hesabın varlığı sızardı.
+        if (!user.IsFullyVerified)
+            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountNotVerified", "Hesabiniz dogrulanmamis. Lutfen e-posta ve telefon dogrulamasini tamamlayiniz."));
+
+        if (!user.IsActive)
+            return Result.Failure<LoginResponse>(Error.Validation("Auth.AccountInactive", "Hesabiniz aktif degil."));
 
         // Successful login - reset failed attempts and update last login
         user.UpdateLastLogin();

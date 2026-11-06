@@ -22,7 +22,7 @@ internal sealed class DeleteAdvertEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("DeleteAdvert")
         .WithSummary("İlanı sil")

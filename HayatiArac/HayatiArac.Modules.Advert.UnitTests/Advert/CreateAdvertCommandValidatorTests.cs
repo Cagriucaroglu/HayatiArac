@@ -150,6 +150,45 @@ public class CreateAdvertCommandValidatorTests
         result.IsValid.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("javascript:alert(1)")]
+    [InlineData("http://example.com/a.jpg")]
+    [InlineData("data:image/png;base64,AAAA")]
+    [InlineData("/relative/path.jpg")]
+    public async Task Validate_Fails_WhenImageUrlIsNotHttps(string url)
+    {
+        var result = await _validator.ValidateAsync(ValidCommand() with
+        {
+            Request = ValidDto() with { ImageUrls = [url] }
+        });
+
+        result.IsValid.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task Validate_Passes_WhenImageUrlsAreHttps()
+    {
+        var result = await _validator.ValidateAsync(ValidCommand() with
+        {
+            Request = ValidDto() with { ImageUrls = ["https://cdn.example.com/a.jpg", "https://cdn.example.com/b.jpg"] }
+        });
+
+        result.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Validate_Fails_WhenTooManyImages()
+    {
+        var urls = Enumerable.Range(0, 11).Select(i => $"https://cdn.example.com/{i}.jpg").ToList();
+
+        var result = await _validator.ValidateAsync(ValidCommand() with
+        {
+            Request = ValidDto() with { ImageUrls = urls }
+        });
+
+        result.IsValid.Should().BeFalse();
+    }
+
     private static CreateAdvertDto ValidDto() => new(
         Title: "Test İlan",
         Description: "Test açıklama metni",

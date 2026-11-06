@@ -21,7 +21,7 @@ internal sealed class MarkAsReadEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("MarkNotificationAsRead")
         .WithSummary("Bildirimi okundu olarak işaretle")

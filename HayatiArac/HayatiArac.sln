@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36603.0
+# Visual Studio Version 18
+VisualStudioVersion = 18.10.12224.181 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -66,6 +66,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HayatiArac.Modules.Advert.UnitTests", "HayatiArac.Modules.Advert.UnitTests\HayatiArac.Modules.Advert.UnitTests.csproj", "{8E8CD811-338A-4DFA-83D2-C5B9DD50CEDA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HayatiArac.IntegrationTests", "HayatiArac.IntegrationTests\HayatiArac.IntegrationTests.csproj", "{19E6138C-43FA-417C-8B17-C31D6D0BAE61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HayatiArac.Modules.User.UnitTests", "HayatiArac.Modules.User.UnitTests\HayatiArac.Modules.User.UnitTests.csproj", "{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -341,6 +343,18 @@ Global
 		{19E6138C-43FA-417C-8B17-C31D6D0BAE61}.Release|x64.Build.0 = Release|Any CPU
 		{19E6138C-43FA-417C-8B17-C31D6D0BAE61}.Release|x86.ActiveCfg = Release|Any CPU
 		{19E6138C-43FA-417C-8B17-C31D6D0BAE61}.Release|x86.Build.0 = Release|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Debug|x64.Build.0 = Debug|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Debug|x86.Build.0 = Debug|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Release|x64.ActiveCfg = Release|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Release|x64.Build.0 = Release|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Release|x86.ActiveCfg = Release|Any CPU
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -376,6 +390,7 @@ Global
 		{4076791A-C897-4E18-BDDF-A920B658E1F4} = {DEE7EFC0-D713-47B0-8BAB-F5737230B65B}
 		{8E8CD811-338A-4DFA-83D2-C5B9DD50CEDA} = {39E15DDC-9F31-4B22-B205-5252D9676757}
 		{19E6138C-43FA-417C-8B17-C31D6D0BAE61} = {39E15DDC-9F31-4B22-B205-5252D9676757}
+		{33797D03-E9F9-45AC-975D-3BA3B8AFBFBD} = {39E15DDC-9F31-4B22-B205-5252D9676757}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {19E507E6-565E-4651-88A0-0E77E750DBE0}

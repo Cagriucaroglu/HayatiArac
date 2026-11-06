@@ -22,7 +22,7 @@ internal sealed class GetCategoriesEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("GetCategories")
         .WithSummary("Tüm kategorileri getir")

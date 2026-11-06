@@ -21,7 +21,7 @@ internal sealed class GetMyConversationsEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("GetMyConversations")
         .WithSummary("Kullanıcının konuşmalarını getir")

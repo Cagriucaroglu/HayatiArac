@@ -30,13 +30,14 @@ internal sealed class RegisterEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Created($"api/users/{result.Value.UserId}", result.Value)
-                : Results.BadRequest(new { error = result.Error.Code, message = result.Error.Message });
+                : result.ToProblem();
         })
         .WithName("Register")
         .WithSummary("User registration")
         .WithDescription("Register a new user account")
         .WithTags("Authentication")
         .AllowAnonymous()
+        .RequireRateLimiting(RateLimitPolicies.Auth)
         .Produces<RegisterUserResponse>(StatusCodes.Status201Created)
         .Produces<ProblemDetails>(StatusCodes.Status400BadRequest);
     }

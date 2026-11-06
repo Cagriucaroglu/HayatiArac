@@ -22,12 +22,13 @@ internal sealed class ResendPhoneOtpEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(new { message = "Dogrulama kodu telefonunuza tekrar gonderildi." })
-                : Results.BadRequest(new { error = result.Error.Code, message = result.Error.Message });
+                : result.ToProblem();
         })
         .WithName("ResendPhoneOtp")
         .WithSummary("Telefon OTP yeniden gönder")
         .WithTags("Authentication")
         .AllowAnonymous()
+        .RequireRateLimiting(RateLimitPolicies.Otp)
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest);
     }

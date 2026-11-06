@@ -37,5 +37,23 @@ public sealed class CreateAdvertCommandValidator : AbstractValidator<CreateAdver
 
         RuleFor(x => x.Request.Mileage)
             .GreaterThanOrEqualTo(0).WithMessage("Kilometre 0 veya daha büyük olmalıdır.");
+
+        RuleFor(x => x.Request.ImageUrls)
+            .Must(urls => urls is null || urls.Count <= MaxImageCount)
+            .WithMessage($"En fazla {MaxImageCount} görsel eklenebilir.");
+
+        // Sadece mutlak https adresleri: javascript:, data: gibi şemalarla XSS veya iç ağ adreslerine yönlendirme engellenir.
+        RuleForEach(x => x.Request.ImageUrls)
+            .Must(BeSafeHttpsUrl)
+            .WithMessage("Görsel adresi geçerli bir https:// URL olmalıdır.");
     }
+
+    private const int MaxImageCount = 10;
+    private const int MaxUrlLength = 2048;
+
+    private static bool BeSafeHttpsUrl(string? url) =>
+        !string.IsNullOrWhiteSpace(url)
+        && url.Length <= MaxUrlLength
+        && Uri.TryCreate(url, UriKind.Absolute, out var uri)
+        && uri.Scheme == Uri.UriSchemeHttps;
 }

@@ -22,7 +22,7 @@ internal sealed class RemoveFavoriteEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("RemoveFavorite")
         .WithSummary("İlanı favorilerden kaldır")

@@ -23,7 +23,7 @@ internal sealed class StartConversationEndpoint : IEndpoint
             Result<Guid> result = await sender.Send(new StartConversationCommand(request), cancellationToken);
             return result.IsSuccess
                    ? Results.Created($"api/conversations/{result.Value}", new { id = result.Value })
-                   : Results.BadRequest(result.Error);
+                   : result.ToProblem();
         })
         .WithName("StartConversation")
         .WithSummary("Yeni konuşma başlat veya mevcut konuşmaya mesaj ekle")

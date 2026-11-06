@@ -22,7 +22,7 @@ internal sealed class GetUserFavoritesEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("GetUserFavorites")
         .WithSummary("Kullanıcının favori ilanlarını getir")

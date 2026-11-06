@@ -29,7 +29,7 @@ internal sealed class CreateCategoryEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Created($"api/adverts/categories/{result.Value}", new { id = result.Value })
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("CreateCategory")
         .WithSummary("Yeni kategori oluştur (Admin only)")

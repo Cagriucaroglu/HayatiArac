@@ -1,5 +1,6 @@
 using HayatiArac.Modules.Advert.Application.Commands.UpdateAdvert;
 using HayatiArac.Modules.Advert.Application.DTOs;
+using HayatiArac.SharedKernel.Application;
 using HayatiArac.SharedKernel.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -20,14 +21,14 @@ internal sealed class UpdateAdvertEndpoint : IEndpoint
             CancellationToken cancellationToken) =>
         {
             if (id != request.Id)
-                return Results.BadRequest("URL'deki ID ile body'deki ID uyuşmuyor.");
+                return Error.Validation("Advert.IdMismatch", "URL'deki ID ile body'deki ID uyuşmuyor.").ToProblem();
 
             var command = new UpdateAdvertCommand(request);
             var result = await sender.Send(command, cancellationToken);
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("UpdateAdvert")
         .WithSummary("İlanı güncelle")

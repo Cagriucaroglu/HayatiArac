@@ -21,7 +21,7 @@ internal sealed class GetNotificationsEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("GetMyNotifications")
         .WithSummary("Kullanıcının bildirimlerini getir")

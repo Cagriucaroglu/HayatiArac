@@ -1,5 +1,6 @@
 using HayatiArac.Modules.Advert.Application.DTOs;
 using HayatiArac.Modules.Advert.Application.Interfaces;
+using HayatiArac.Modules.Advert.Domain.Enums;
 using HayatiArac.SharedKernel.Application;
 using MediatR;
 
@@ -18,7 +19,8 @@ public sealed class GetAdvertByIdQueryHandler : IRequestHandler<GetAdvertByIdQue
     {
         var advert = await _advertRepository.GetByIdWithDetailsAsync(request.AdvertId, cancellationToken);
 
-        if (advert is null)
+        // Silinmiş ilanlar ID bilinse bile görüntülenemez.
+        if (advert is null || advert.Status == AdvertStatus.Deleted)
             return Result.Failure<AdvertDto>(Error.NotFound("Advert.NotFound", "İlan bulunamadı."));
 
         var dto = new AdvertDto(

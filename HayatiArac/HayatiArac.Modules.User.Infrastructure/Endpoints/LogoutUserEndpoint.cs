@@ -1,5 +1,6 @@
 using HayatiArac.Modules.User.Application.Commands.Logout;
 using HayatiArac.Modules.User.Application.Interfaces;
+using HayatiArac.Modules.User.Infrastructure.Services.Authentication;
 using HayatiArac.SharedKernel.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -37,16 +38,7 @@ internal sealed class LogoutUserEndpoint : IEndpoint
             }
 
             // Web istemcileri için refreshToken cookie'sini sil
-            if (httpContext.Request.Cookies.ContainsKey("refreshToken"))
-            {
-                httpContext.Response.Cookies.Delete("refreshToken", new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true,
-                    SameSite = SameSiteMode.Strict,
-                    Path = "/"
-                });
-            }
+            RefreshTokenCookie.Delete(httpContext);
 
             // DB'den refresh token'ları revoke et
             await sender.Send(new LogoutUserCommand(), cancellationToken);

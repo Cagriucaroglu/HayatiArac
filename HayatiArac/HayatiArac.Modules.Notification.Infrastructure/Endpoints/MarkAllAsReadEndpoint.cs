@@ -20,7 +20,7 @@ internal sealed class MarkAllAsReadEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.NoContent()
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("MarkAllNotificationsAsRead")
         .WithSummary("Tüm bildirimleri okundu olarak işaretle")

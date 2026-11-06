@@ -22,12 +22,13 @@ internal sealed class VerifyPhoneEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(new { message = "Telefon numarasi basariyla dogrulandi." })
-                : Results.BadRequest(new { error = result.Error.Code, message = result.Error.Message });
+                : result.ToProblem();
         })
         .WithName("VerifyPhone")
         .WithSummary("Telefon OTP doğrulama")
         .WithTags("Authentication")
         .AllowAnonymous()
+        .RequireRateLimiting(RateLimitPolicies.Otp)
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest);
     }

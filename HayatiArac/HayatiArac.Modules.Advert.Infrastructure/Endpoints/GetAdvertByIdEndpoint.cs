@@ -23,7 +23,7 @@ internal sealed class GetAdvertByIdEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.NotFound(result.Error);
+                : result.ToProblem();
         })
         .WithName("GetAdvertById")
         .WithSummary("İlan detayını getir")

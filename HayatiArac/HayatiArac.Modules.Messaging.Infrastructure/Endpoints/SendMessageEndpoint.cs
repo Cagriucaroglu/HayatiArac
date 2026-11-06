@@ -23,7 +23,7 @@ internal sealed class SendMessageEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(new { id = result.Value })
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("SendMessage")
         .WithSummary("Konuşmaya mesaj gönder")

@@ -23,7 +23,7 @@ internal sealed class GetConversationMessagesEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("GetConversationMessages")
         .WithSummary("Konuşma mesajlarını getir")

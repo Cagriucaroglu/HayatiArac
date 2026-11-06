@@ -61,17 +61,17 @@ public class JwtTokenService : IJwtTokenService
         return await Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
     }
 
-    public async Task<RefreshToken?> ValidateRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
+    public Task<RefreshToken?> FindRefreshTokenAsync(string refreshToken, CancellationToken cancellationToken = default)
     {
-        var token = await _refreshTokenRepository.GetByTokenAsync(refreshToken, cancellationToken);
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return Task.FromResult<RefreshToken?>(null);
 
-        if (token == null || !token.IsActive)
-        {
-            return null;
-        }
-
-        return token;
+        return _refreshTokenRepository.GetByTokenAsync(HashToken(refreshToken), cancellationToken);
     }
+
+    // Veritabanı sızsa bile ham refresh token'lar kullanılamasın diye sadece SHA-256 hash'i saklanır.
+    private static string HashToken(string token) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 
     private async Task<(string Token, DateTime ExpiresAt)> GenerateRefreshTokenAsync(
         Guid userId, 
@@ -86,7 +86,7 @@ public class JwtTokenService : IJwtTokenService
         var expiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpirationInDays);
         var jwtId = Guid.NewGuid().ToString();
 
-        var refreshToken = RefreshToken.Create(userId, token, jwtId, expiresAt, ipAddress);
+        var refreshToken = RefreshToken.Create(userId, HashToken(token), jwtId, expiresAt, ipAddress);
         await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
 
         return (token, expiresAt);

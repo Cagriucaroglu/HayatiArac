@@ -22,12 +22,13 @@ internal sealed class VerifyEmailEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(new { message = "E-posta basariyla dogrulandi." })
-                : Results.BadRequest(new { error = result.Error.Code, message = result.Error.Message });
+                : result.ToProblem();
         })
         .WithName("VerifyEmail")
         .WithSummary("E-posta OTP doğrulama")
         .WithTags("Authentication")
         .AllowAnonymous()
+        .RequireRateLimiting(RateLimitPolicies.Otp)
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest);
     }

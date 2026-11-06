@@ -23,7 +23,7 @@ internal sealed class CreateAdvertEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Created($"api/adverts/{result.Value}", new { id = result.Value })
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("CreateAdvert")
         .WithSummary("Yeni ilan oluştur")

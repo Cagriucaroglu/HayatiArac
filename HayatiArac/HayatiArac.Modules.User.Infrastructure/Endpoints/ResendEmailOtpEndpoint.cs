@@ -22,12 +22,13 @@ internal sealed class ResendEmailOtpEndpoint : IEndpoint
 
             return result.IsSuccess
                 ? Results.Ok(new { message = "Dogrulama kodu e-posta adresinize tekrar gonderildi." })
-                : Results.BadRequest(new { error = result.Error.Code, message = result.Error.Message });
+                : result.ToProblem();
         })
         .WithName("ResendEmailOtp")
         .WithSummary("E-posta OTP yeniden gönder")
         .WithTags("Authentication")
         .AllowAnonymous()
+        .RequireRateLimiting(RateLimitPolicies.Otp)
         .Produces(StatusCodes.Status200OK)
         .Produces(StatusCodes.Status400BadRequest);
     }

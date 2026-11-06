@@ -18,12 +18,14 @@ internal sealed class SearchAdvertsEndpoint : IEndpoint
             ISender sender,
             CancellationToken cancellationToken) =>
         {
-            var query = new SearchAdvertsQuery(request);
+            // Herkese açık aramada sadece aktif ilanlar listelenir; istemcinin gönderdiği status yok sayılır
+            // (aksi halde silinmiş/pasif ilanlar anonim olarak görülebilirdi).
+            var query = new SearchAdvertsQuery(request with { Status = null });
             var result = await sender.Send(query, cancellationToken);
 
             return result.IsSuccess
                 ? Results.Ok(result.Value)
-                : Results.BadRequest(result.Error);
+                : result.ToProblem();
         })
         .WithName("SearchAdverts")
         .WithSummary("İlanları arama ve filtreleme")
