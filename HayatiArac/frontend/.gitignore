@@ -10,7 +10,13 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+coverage
 *.local
+
+# Ortam dosyaları: VITE_* değerleri bundle'a gömülür, sır konmaz; yine de commit edilmez
+.env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
