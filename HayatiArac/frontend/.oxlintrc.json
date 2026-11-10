@@ -15,5 +15,13 @@
     "no-script-url": "error",
 
     "typescript/no-explicit-any": "error"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx"],
+      "rules": {
+        "no-script-url": "off"
+      }
+    }
+  ]
 }
